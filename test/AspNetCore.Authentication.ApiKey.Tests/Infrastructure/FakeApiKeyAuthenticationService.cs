@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
 {
-    class FakeApiKeyProvider : IApiKeyProvider
+    class FakeApiKeyAuthenticationService : IApiKeyAuthenticationService
     {
-        public Task<IApiKey> ProvideAsync(string key)
+        public Task<IApiKey> AuthenticateAsync(string key)
         {
             var apiKey = FakeApiKeys.Keys.FirstOrDefault(k => k.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
             if (apiKey != null)
@@ -75,12 +75,12 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
         };
     }
 
-	class FakeApiKeyProviderFactory : IApiKeyProviderFactory
+	class FakeApiKeyAuthenticationServiceFactory : IApiKeyAuthenticationServiceFactory
 	{
 		/// <inheritdoc />
-		public IApiKeyProvider CreateApiKeyProvider(string authenticationSchemaName)
+		public IApiKeyAuthenticationService CreateApiKeyProvider(string authenticationSchemaName)
 		{
-			return new FakeApiKeyProvider();
+			return new FakeApiKeyAuthenticationService();
 		}
 	}
 }

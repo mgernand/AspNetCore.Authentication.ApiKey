@@ -231,7 +231,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_OnValidateKey_result_null_without_provider_and_OnAuthenticationFailed_throws()
 		{
-			var expectedExceptionMessage = $"Either {nameof(ApiKeyEvents.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyProvider)} or register an implementation of type {nameof(IApiKeyProviderFactory)} in the service collection.";
+			var expectedExceptionMessage = $"Either {nameof(ApiKeyEvents.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.";
 
 			using var server = TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
 			{
@@ -271,7 +271,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_OnValidateKey_result_null_without_provider_and_OnAuthenticationFailed_does_not_throw()
 		{
-			var expectedExceptionMessage = $"Either {nameof(ApiKeyEvents.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyProvider)} or register an implementation of type {nameof(IApiKeyProviderFactory)} in the service collection.";
+			var expectedExceptionMessage = $"Either {nameof(ApiKeyEvents.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.";
 
 			using var server = TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
 			{
@@ -425,17 +425,17 @@ namespace AspNetCore.Authentication.ApiKey.Tests
                             return Task.CompletedTask;
                         };
                     })
-                    .AddApiKeyInHeader<FakeApiKeyProviderLocal_1>("InHeaderWithProvider", options =>
+                    .AddApiKeyInHeader<FakeApiKeyAuthenticationServiceLocal1>("InHeaderWithProvider", options =>
                     {
                         options.Realm = TestServerBuilder.Realm;
                         options.KeyName = keyName2;
                     })
-                    .AddApiKeyInAuthorizationHeader<FakeApiKeyProviderLocal_2>("InAuthorizationHeader", options =>
+                    .AddApiKeyInAuthorizationHeader<FakeApiKeyAuthenticationServiceLocal2>("InAuthorizationHeader", options =>
                     {
                         options.Realm = TestServerBuilder.Realm;
                         options.KeyName = keyName3;
                     })
-                    .AddApiKeyInQueryParams<FakeApiKeyProvider>("InQueryParams", options =>
+                    .AddApiKeyInQueryParams<FakeApiKeyAuthenticationService>("InQueryParams", options =>
                     {
                         options.Realm = TestServerBuilder.Realm;
                         options.KeyName = keyName4;
@@ -502,17 +502,17 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 			return JsonSerializer.Deserialize<ClaimsPrincipalDto>(await response.Content.ReadAsStringAsync());
 		}
 
-        private class FakeApiKeyProviderLocal_1 : IApiKeyProvider
+        private class FakeApiKeyAuthenticationServiceLocal1 : IApiKeyAuthenticationService
         {
-            public Task<IApiKey> ProvideAsync(string key)
+            public Task<IApiKey> AuthenticateAsync(string key)
             {
 				return Task.FromResult((IApiKey)new FakeApiKey(key, "Test", new List<Claim> { new Claim("Provider", "1") }));
             }
         }
 
-		private class FakeApiKeyProviderLocal_2 : IApiKeyProvider
+		private class FakeApiKeyAuthenticationServiceLocal2 : IApiKeyAuthenticationService
 		{
-			public Task<IApiKey> ProvideAsync(string key)
+			public Task<IApiKey> AuthenticateAsync(string key)
 			{
 				return Task.FromResult((IApiKey)new FakeApiKey(key, "Test", new List<Claim> { new Claim("Provider", "2") }));
 			}

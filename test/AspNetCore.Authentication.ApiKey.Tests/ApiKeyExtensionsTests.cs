@@ -73,7 +73,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInHeader_TApiKeyProvider_verify_auth_scheme_handler_default()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyProvider>(), ApiKeyDefaults.AuthenticationScheme);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyAuthenticationService>(), ApiKeyDefaults.AuthenticationScheme);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -83,7 +83,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInHeader_TApiKeyProvider_verify_auth_scheme_handler_with_scheme()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyProvider>(schemeName), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyAuthenticationService>(schemeName), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -93,7 +93,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInHeader_TApiKeyProvider_verify_auth_scheme_handler_with_configureOptions()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyProvider>(_ => { }));
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyAuthenticationService>(_ => { }));
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -103,7 +103,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInHeader_TApiKeyProvider_verify_auth_scheme_handler_with_scheme_and_configureOptions()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyProvider>(schemeName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyAuthenticationService>(schemeName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -115,7 +115,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var schemeName = "CustomScheme";
             var displayName = "DisplayName";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyProvider>(schemeName, displayName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeader<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderHandler), scheme.HandlerType.Name);
             Assert.NotNull(scheme.DisplayName);
@@ -163,8 +163,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInHeader<MockApiKeyProvider>()
-                .AddApiKeyInHeader<MockApiKeyProvider>(schemeName, displayName, _ => { });
+                .AddApiKeyInHeader<MockApiKeyAuthenticationService>()
+                .AddApiKeyInHeader<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { });
 
             var sp = services.BuildServiceProvider();
             var schemeProvider = sp.GetRequiredService<IAuthenticationSchemeProvider>();
@@ -192,38 +192,38 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInHeader<MockApiKeyProvider>();
+                .AddApiKeyInHeader<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             var sp = services.BuildServiceProvider();
-            var provider = sp.GetService<IApiKeyProvider>();
+            var provider = sp.GetService<IApiKeyAuthenticationService>();
 
             Assert.NotNull(provider);
-            Assert.Equal(typeof(MockApiKeyProvider), provider.GetType());
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), provider.GetType());
         }
 
         [Fact]
         public void AddApiKeyInHeader_TApiKeyProvider_does_not_replace_previously_user_registered_IApiKeyProvider()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IApiKeyProvider, MockApiKeyProvider2>();
+            services.AddSingleton<IApiKeyAuthenticationService, MockApiKeyProvider2>();
             services.AddAuthentication()
-                .AddApiKeyInHeader<MockApiKeyProvider>();
+                .AddApiKeyInHeader<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyProvider));
+            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService));
             Assert.Equal(2, serviceDescriptors.Count());
 
-            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider2)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
             Assert.Equal(typeof(MockApiKeyProvider2), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Singleton, serviceDescriptor.Lifetime);
         }
@@ -272,35 +272,35 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public void AddApiKeyInHeader_TApiKeyProvider_allows_chaining()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyProvider>());
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyAuthenticationService>());
         }
 
         [Fact]
         public void AddApiKeyInHeader_TApiKeyProvider_allows_chaining_with_scheme()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyProvider>(string.Empty));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyAuthenticationService>(string.Empty));
         }
 
         [Fact]
         public void AddApiKeyInHeader_TApiKeyProvider_allows_chaining_with_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyProvider>(_ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyAuthenticationService>(_ => { }));
         }
 
         [Fact]
         public void AddApiKeyInHeader_TApiKeyProvider_allows_chaining_with_scheme_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyProvider>(string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyAuthenticationService>(string.Empty, _ => { }));
         }
 
         [Fact]
         public void AddApiKeyInHeader_TApiKeyProvider_allows_chaining_with_scheme_displayName_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyProvider>(string.Empty, string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeader<MockApiKeyAuthenticationService>(string.Empty, string.Empty, _ => { }));
         }
 
         #endregion // Allows chaining
@@ -368,7 +368,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInAuthorizationHeader_TApiKeyProvider_verify_auth_scheme_handler_default()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(), ApiKeyDefaults.AuthenticationScheme);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(), ApiKeyDefaults.AuthenticationScheme);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInAuthorizationHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -378,7 +378,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInAuthorizationHeader_TApiKeyProvider_verify_auth_scheme_handler_with_scheme()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(schemeName), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(schemeName), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInAuthorizationHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -388,7 +388,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInAuthorizationHeader_TApiKeyProvider_verify_auth_scheme_handler_with_configureOptions()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(_ => { }));
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(_ => { }));
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInAuthorizationHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -398,7 +398,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInAuthorizationHeader_TApiKeyProvider_verify_auth_scheme_handler_with_scheme_and_configureOptions()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(schemeName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(schemeName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInAuthorizationHeaderHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -410,7 +410,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var schemeName = "CustomScheme";
             var displayName = "DisplayName";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(schemeName, displayName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInAuthorizationHeaderHandler), scheme.HandlerType.Name);
             Assert.NotNull(scheme.DisplayName);
@@ -458,8 +458,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInAuthorizationHeader<MockApiKeyProvider>()
-                .AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(schemeName, displayName, _ => { });
+                .AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>()
+                .AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { });
 
             var sp = services.BuildServiceProvider();
             var schemeProvider = sp.GetRequiredService<IAuthenticationSchemeProvider>();
@@ -487,38 +487,38 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInAuthorizationHeader<MockApiKeyProvider>();
+                .AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             var sp = services.BuildServiceProvider();
-            var provider = sp.GetService<IApiKeyProvider>();
+            var provider = sp.GetService<IApiKeyAuthenticationService>();
 
             Assert.NotNull(provider);
-            Assert.Equal(typeof(MockApiKeyProvider), provider.GetType());
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), provider.GetType());
         }
 
         [Fact]
         public void AddApiKeyInAuthorizationHeader_TApiKeyProvider_does_not_replace_previously_user_registered_IApiKeyProvider()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IApiKeyProvider, MockApiKeyProvider2>();
+            services.AddSingleton<IApiKeyAuthenticationService, MockApiKeyProvider2>();
             services.AddAuthentication()
-                .AddApiKeyInAuthorizationHeader<MockApiKeyProvider>();
+                .AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyProvider));
+            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService));
             Assert.Equal(2, serviceDescriptors.Count());
 
-            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider2)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
             Assert.Equal(typeof(MockApiKeyProvider2), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Singleton, serviceDescriptor.Lifetime);
         }
@@ -567,35 +567,35 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public void AddApiKeyInAuthorizationHeader_TApiKeyProvider_allows_chaining()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>());
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>());
         }
 
         [Fact]
         public void AddApiKeyInAuthorizationHeader_TApiKeyProvider_allows_chaining_with_scheme()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(string.Empty));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(string.Empty));
         }
 
         [Fact]
         public void AddApiKeyInAuthorizationHeader_TApiKeyProvider_allows_chaining_with_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(_ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(_ => { }));
         }
 
         [Fact]
         public void AddApiKeyInAuthorizationHeader_TApiKeyProvider_allows_chaining_with_scheme_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(string.Empty, _ => { }));
         }
 
         [Fact]
         public void AddApiKeyInAuthorizationHeader_TApiKeyProvider_allows_chaining_with_scheme_displayName_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyProvider>(string.Empty, string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInAuthorizationHeader<MockApiKeyAuthenticationService>(string.Empty, string.Empty, _ => { }));
         }
 
         #endregion // Allows chaining
@@ -663,7 +663,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInQueryParams_TApiKeyProvider_verify_auth_scheme_handler_default()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyProvider>(), ApiKeyDefaults.AuthenticationScheme);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(), ApiKeyDefaults.AuthenticationScheme);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -673,7 +673,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInQueryParams_TApiKeyProvider_verify_auth_scheme_handler_with_scheme()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyProvider>(schemeName), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(schemeName), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -683,7 +683,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInQueryParams_TApiKeyProvider_verify_auth_scheme_handler_with_configureOptions()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyProvider>(_ => { }));
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(_ => { }));
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -693,7 +693,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInQueryParams_TApiKeyProvider_verify_auth_scheme_handler_with_scheme_and_configureOptions()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyProvider>(schemeName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(schemeName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -705,7 +705,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var schemeName = "CustomScheme";
             var displayName = "DisplayName";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyProvider>(schemeName, displayName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInQueryParamsHandler), scheme.HandlerType.Name);
             Assert.NotNull(scheme.DisplayName);
@@ -753,8 +753,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInQueryParams<MockApiKeyProvider>()
-                .AddApiKeyInQueryParams<MockApiKeyProvider>(schemeName, displayName, _ => { });
+                .AddApiKeyInQueryParams<MockApiKeyAuthenticationService>()
+                .AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { });
 
             var sp = services.BuildServiceProvider();
             var schemeProvider = sp.GetRequiredService<IAuthenticationSchemeProvider>();
@@ -782,38 +782,38 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInQueryParams<MockApiKeyProvider>();
+                .AddApiKeyInQueryParams<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             var sp = services.BuildServiceProvider();
-            var provider = sp.GetService<IApiKeyProvider>();
+            var provider = sp.GetService<IApiKeyAuthenticationService>();
 
             Assert.NotNull(provider);
-            Assert.Equal(typeof(MockApiKeyProvider), provider.GetType());
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), provider.GetType());
         }
 
         [Fact]
         public void AddApiKeyInQueryParams_TApiKeyProvider_does_not_replace_previously_user_registered_IApiKeyProvider()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IApiKeyProvider, MockApiKeyProvider2>();
+            services.AddSingleton<IApiKeyAuthenticationService, MockApiKeyProvider2>();
             services.AddAuthentication()
-                .AddApiKeyInQueryParams<MockApiKeyProvider>();
+                .AddApiKeyInQueryParams<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyProvider));
+            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService));
             Assert.Equal(2, serviceDescriptors.Count());
 
-            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider2)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
             Assert.Equal(typeof(MockApiKeyProvider2), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Singleton, serviceDescriptor.Lifetime);
         }
@@ -862,35 +862,35 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public void AddApiKeyInQueryParams_TApiKeyProvider_allows_chaining()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyProvider>());
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>());
         }
 
         [Fact]
         public void AddApiKeyInQueryParams_TApiKeyProvider_allows_chaining_with_scheme()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyProvider>(string.Empty));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(string.Empty));
         }
 
         [Fact]
         public void AddApiKeyInQueryParams_TApiKeyProvider_allows_chaining_with_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyProvider>(_ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(_ => { }));
         }
 
         [Fact]
         public void AddApiKeyInQueryParams_TApiKeyProvider_allows_chaining_with_scheme_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyProvider>(string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(string.Empty, _ => { }));
         }
 
         [Fact]
         public void AddApiKeyInQueryParams_TApiKeyProvider_allows_chaining_with_scheme_displayName_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyProvider>(string.Empty, string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInQueryParams<MockApiKeyAuthenticationService>(string.Empty, string.Empty, _ => { }));
         }
 
         #endregion // Allows chaining
@@ -958,7 +958,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_verify_auth_scheme_handler_default()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(), ApiKeyDefaults.AuthenticationScheme);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(), ApiKeyDefaults.AuthenticationScheme);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderOrQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -968,7 +968,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_verify_auth_scheme_handler_with_scheme()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(schemeName), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(schemeName), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderOrQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -978,7 +978,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         [Fact]
         public async Task AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_verify_auth_scheme_handler_with_configureOptions()
         {
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(_ => { }));
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(_ => { }));
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderOrQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -988,7 +988,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public async Task AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_verify_auth_scheme_handler_with_scheme_and_configureOptions()
         {
             var schemeName = "CustomScheme";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(schemeName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(schemeName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderOrQueryParamsHandler), scheme.HandlerType.Name);
             Assert.Null(scheme.DisplayName);
@@ -1000,7 +1000,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var schemeName = "CustomScheme";
             var displayName = "DisplayName";
-            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(schemeName, displayName, _ => { }), schemeName);
+            var scheme = await GetSchemeAsync(a => a.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { }), schemeName);
             Assert.NotNull(scheme);
             Assert.Equal(nameof(ApiKeyInHeaderOrQueryParamsHandler), scheme.HandlerType.Name);
             Assert.NotNull(scheme.DisplayName);
@@ -1048,8 +1048,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>()
-                .AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(schemeName, displayName, _ => { });
+                .AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>()
+                .AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(schemeName, displayName, _ => { });
 
             var sp = services.BuildServiceProvider();
             var schemeProvider = sp.GetRequiredService<IAuthenticationSchemeProvider>();
@@ -1077,38 +1077,38 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         {
             var services = new ServiceCollection();
             services.AddAuthentication()
-                .AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>();
+                .AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             var sp = services.BuildServiceProvider();
-            var provider = sp.GetService<IApiKeyProvider>();
+            var provider = sp.GetService<IApiKeyAuthenticationService>();
 
             Assert.NotNull(provider);
-            Assert.Equal(typeof(MockApiKeyProvider), provider.GetType());
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), provider.GetType());
         }
 
         [Fact]
         public void AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_does_not_replace_previously_user_registered_IApiKeyProvider()
         {
             var services = new ServiceCollection();
-            services.AddSingleton<IApiKeyProvider, MockApiKeyProvider2>();
+            services.AddSingleton<IApiKeyAuthenticationService, MockApiKeyProvider2>();
             services.AddAuthentication()
-                .AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>();
+                .AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>();
 
-            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyProvider));
+            var serviceDescriptors = services.Where(s => s.ServiceType == typeof(IApiKeyAuthenticationService));
             Assert.Equal(2, serviceDescriptors.Count());
 
-            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
-            Assert.Equal(typeof(MockApiKeyProvider), serviceDescriptor.ImplementationType);
+            var serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyAuthenticationService)));
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(MockApiKeyAuthenticationService), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Transient, serviceDescriptor.Lifetime);
 
             serviceDescriptor = Assert.Single(serviceDescriptors.Where(s => s.ImplementationType == typeof(MockApiKeyProvider2)));
-            Assert.Equal(typeof(IApiKeyProvider), serviceDescriptor.ServiceType);
+            Assert.Equal(typeof(IApiKeyAuthenticationService), serviceDescriptor.ServiceType);
             Assert.Equal(typeof(MockApiKeyProvider2), serviceDescriptor.ImplementationType);
             Assert.Equal(ServiceLifetime.Singleton, serviceDescriptor.Lifetime);
         }
@@ -1157,35 +1157,35 @@ namespace AspNetCore.Authentication.ApiKey.Tests
         public void AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_allows_chaining()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>());
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>());
         }
 
         [Fact]
         public void AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_allows_chaining_with_scheme()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(string.Empty));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(string.Empty));
         }
 
         [Fact]
         public void AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_allows_chaining_with_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(_ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(_ => { }));
         }
 
         [Fact]
         public void AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_allows_chaining_with_scheme_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(string.Empty, _ => { }));
         }
 
         [Fact]
         public void AddApiKeyInHeaderOrQueryParams_TApiKeyProvider_allows_chaining_with_scheme_displayName_and_configureOptions()
         {
             var authenticationBuilder = new ServiceCollection().AddAuthentication();
-            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyProvider>(string.Empty, string.Empty, _ => { }));
+            Assert.Same(authenticationBuilder, authenticationBuilder.AddApiKeyInHeaderOrQueryParams<MockApiKeyAuthenticationService>(string.Empty, string.Empty, _ => { }));
         }
 
         #endregion // Allows chaining
@@ -1201,17 +1201,17 @@ namespace AspNetCore.Authentication.ApiKey.Tests
             return schemeProvider.GetSchemeAsync(schemeName);
         }
 
-        private class MockApiKeyProvider : IApiKeyProvider
+        private class MockApiKeyAuthenticationService : IApiKeyAuthenticationService
         {
-            public Task<IApiKey> ProvideAsync(string key)
+            public Task<IApiKey> AuthenticateAsync(string key)
             {
                 throw new NotImplementedException();
             }
         }
 
-        private class MockApiKeyProvider2 : IApiKeyProvider
+        private class MockApiKeyProvider2 : IApiKeyAuthenticationService
         {
-            public Task<IApiKey> ProvideAsync(string key)
+            public Task<IApiKey> AuthenticateAsync(string key)
             {
                 throw new NotImplementedException();
             }

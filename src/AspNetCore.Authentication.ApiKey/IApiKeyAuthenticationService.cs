@@ -1,4 +1,4 @@
-﻿// Copyright (c) Mihir Dilip. All rights reserved.
+﻿// Copyright (c) Mihir Dilip, Matthias Gernand. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
 using System.Threading.Tasks;
@@ -8,13 +8,13 @@ namespace AspNetCore.Authentication.ApiKey
 	/// <summary>
 	/// Implementation of this interface will be used by the 'ApiKey' authentication handler to validated and get details from the key.
 	/// </summary>
-	public interface IApiKeyProvider
+	public interface IApiKeyAuthenticationService
 	{
 		/// <summary>
-		/// Validates the key and provides with and instance of <see cref="IApiKey"/>.
+		/// Authenticates the API key and returns an instance of <see cref="IApiKey"/> if successful.
 		/// </summary>
-		/// <param name="key"></param>
+		/// <param name="apiKey"></param>
 		/// <returns></returns>
-		Task<IApiKey> ProvideAsync(string key);
+		Task<IApiKey> AuthenticateAsync(string apiKey);
 	}
 }

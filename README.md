@@ -1,7 +1,7 @@
 # AspNetCore.Authentication.ApiKey
 Easy to use and very light weight Microsoft style API Key Authentication Implementation for ASP.NET Core. It can be setup so that it can accept API Key either in Header, Authorization Header, QueryParams or HeaderOrQueryParams.
 
-[View On GitHub](https://github.com/mihirdilip/aspnetcore-authentication-apikey)
+[View On GitHub](https://github.com/mgernand/AspNetCore.Authentication.ApiKey)
 
 <br/>
 
@@ -14,12 +14,12 @@ Multi targeted: net6.0; net5.0; netcoreapp3.1; netcoreapp3.0; netstandard2.0; ne
 ## Installing
 This library is published on NuGet. So the NuGet package can be installed directly to your project if you wish to use it without making any custom changes to the code.
 
-Download directly from [AspNetCore.Authentication.ApiKey](https://www.nuget.org/packages/AspNetCore.Authentication.ApiKey).
+Download directly from [MadEyeMatt.AspNetCore.Authentication.ApiKey](https://www.nuget.org/packages/MadEyeMatt.AspNetCore.Authentication.ApiKey).
 
 Or by running the below command on your project.
 
 ```
-PM> Install-Package AspNetCore.Authentication.ApiKey
+PM> Install-Package MadEyeMatt.AspNetCore.Authentication.ApiKey
 ```
 
 <br/>
@@ -31,15 +31,15 @@ Samples are available under [samples directory](samples).
 Setting it up is quite simple. You will need basic working knowledge of ASP.NET Core 2.0 or newer to get started using this library.
 
 There are 3 different ways of using this library to do it's job. All ways can be mixed if required.  
-1. Using the implementation of *IApiKeyProvider*  
+1. Using the implementation of *IApiKeyAuthenticationService*  
 2. Using *ApiKeyOptions.Events* (OnValidateKey delegate) which is same approach you will find on Microsoft's authentication libraries
-3. Using an implementation of *IApiKeyProviderFactory* that is registered in the *IServiceCollection*
+3. Using an implementation of *IApiKeyAuthenticationServiceFactory* that is registered in the *IServiceCollection*
 
 Notes:
 - It requires Realm to be set in the options if SuppressWWWAuthenticateHeader is not set.
-- If an implementation of IApiKeyProvider interface is used as well as options.Events.OnValidateKey delegate is also set then this delegate will be used first.
-- If an implementation of IApiKeyProviderFactory interface is registered in the IServiceCollection the IApiKeyProvider instances are tried to be created using the factory, 
-  but if no instance is returned by the factory the fallback is to use the configured IApiKeyProvider implementation type.
+- If an implementation of IApiKeyAuthenticationService interface is used as well as options.Events.OnValidateKey delegate is also set then this delegate will be used first.
+- If an implementation of IApiKeyAuthenticationServiceFactory interface is registered in the IServiceCollection the IApiKeyProvider instances are tried to be created using the factory, 
+  but if no instance is returned by the factory the fallback is to use the configured IApiKeyAuthenticationService implementation type.
 
 **Always use HTTPS (SSL Certificate) protocol in production when using API Key authentication.**
 
@@ -47,6 +47,7 @@ Notes:
 
 ```C#
 using AspNetCore.Authentication.ApiKey;
+
 public class Startup
 {
 	public void ConfigureServices(IServiceCollection services)
@@ -60,7 +61,7 @@ public class Startup
 			//.AddApiKeyInHeaderOrQueryParams(options =>
 
 			// The below AddApiKeyInHeaderOrQueryParams with type parameter will add the ApiKeyProvider to the dependency container. 
-			.AddApiKeyInHeaderOrQueryParams<ApiKeyProvider>(options =>
+			.AddApiKeyInHeaderOrQueryParams<ApiKeyAuthenticationService>(options =>
 			{
 				options.Realm = "Sample Web API";
 				options.KeyName = "X-API-KEY";
@@ -98,6 +99,7 @@ public class Startup
 
 ```C#
 using AspNetCore.Authentication.ApiKey;
+
 public class Startup
 {
 	public void ConfigureServices(IServiceCollection services)
@@ -111,7 +113,7 @@ public class Startup
 			//.AddApiKeyInHeaderOrQueryParams(options =>
 
 			// The below AddApiKeyInHeaderOrQueryParams with type parameter will add the ApiKeyProvider to the dependency container. 
-			.AddApiKeyInHeaderOrQueryParams<ApiKeyProvider>(options =>
+			.AddApiKeyInHeaderOrQueryParams<ApiKeyAuthenticationService>(options =>
 			{
 				options.Realm = "Sample Web API";
 				options.KeyName = "X-API-KEY";
@@ -138,24 +140,26 @@ public class Startup
 
 
 
-#### ApiKeyProvider.cs
+#### ApiKeyAuthenticationService.cs
 ```C#
 using AspNetCore.Authentication.ApiKey;
-public class ApiKeyProvider : IApiKeyProvider
+
+public class ApiKeyAuthenticationService : IApiKeyAuthenticationService
 {
-	private readonly ILogger<IApiKeyProvider> _logger;
+	private readonly ILogger<ApiKeyAuthenticationService> _logger;
 	private readonly IApiKeyRepository _apiKeyRepository;
 	
-	public ApiKeyProvider(ILogger<IApiKeyProvider> logger, IApiKeyRepository apiKeyRepository)
+	public ApiKeyProvider(ILogger<ApiKeyAuthenticationService> logger, IApiKeyRepository apiKeyRepository)
 	{
 		_logger = logger;
 		_apiKeyRepository = apiKeyRepository;
 	}
 
-	public async Task<IApiKey> ProvideAsync(string key)
+	public async Task<IApiKey> AuthenticateAsync(string key)
 	{
 		try
 		{
+			// NOTE: DO NOT USE THIS IMPLEMENTATION. THIS IS FOR DEMO PURPOSE ONLY
 			// write your validation implementation here and return an instance of a valid ApiKey or retun null for an invalid key.
 			// return await _apiKeyRepository.GetApiKeyAsync(key);
 			return null;
@@ -172,7 +176,8 @@ public class ApiKeyProvider : IApiKeyProvider
 #### ApiKey.cs
 ```C#
 using AspNetCore.Authentication.ApiKey;
-class ApiKey : IApiKey
+
+public class ApiKey : IApiKey
 {
 	public ApiKey(string key, string owner, List<Claim> claims = null)
 	{
@@ -383,6 +388,8 @@ public void ConfigureServices(IServiceCollection services)
 ## Release Notes
 | Version | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Notes |
 |---------|-------|
+|6.2.0    | <ul><li>Renamed interfaces to be consistent with the Basic library.</li></ul>
+|6.1.0    | <ul><li>Added IApiKeyAuthenticationServiceFactory for creating IApiKeyAuthenticationService instances dynamically based on the scheme name.</li></ul> |
 |6.0.1    | <ul><li>net6.0 support added</li><li>Information log on handler is changed to Debug log when IgnoreAuthenticationIfAllowAnonymous is enabled</li><li>Sample project added</li><li>Readme updated</li><li>Copyright year updated on License</li></ul> |
 |5.1.0    | <ul><li>WWW-Authenticate challenge header now returns SchemeName as scheme part instead of ApiKeyOptions.KeyName</li><li>WWW-Authenticate challenge header now has 2 new parameters 'in' and 'key_name' in value part</li><li>ForLegacyUseKeyNameAsSchemeNameOnWWWAuthenticateHeader added to the ApiKeyOptions</li><li>In Authorization Header now able to use either SchemeName or ApiKeyOptions.KeyName when matching AuthorizationHeader Scheme</li><li>Visibility of all the handlers changed to public [#21](https://github.com/mihirdilip/aspnetcore-authentication-apikey/issues/21)</li><li>Tests added</li><li>Readme updated</li><li>Copyright year updated on License</li></ul> |
 |5.0.0    | <ul><li>Net 5.0 target framework added</li><li>IgnoreAuthenticationIfAllowAnonymous added to the ApiKeyOptions from netcoreapp3.0 onwards [#15](https://github.com/mihirdilip/aspnetcore-authentication-apikey/issues/15)</li></ul> |
@@ -398,4 +405,4 @@ public void ConfigureServices(IServiceCollection services)
 - [aspnet/Security](https://github.com/dotnet/aspnetcore/tree/master/src/Security)
 
 ## License
-[MIT License](https://github.com/mihirdilip/aspnetcore-authentication-apikey/blob/master/LICENSE)
+[MIT License](https://github.com/mgernand/AspNetCore.Authentication.ApiKey/blob/master/LICENSE)

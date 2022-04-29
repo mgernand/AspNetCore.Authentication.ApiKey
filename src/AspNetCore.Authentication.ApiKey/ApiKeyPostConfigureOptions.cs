@@ -32,10 +32,10 @@ namespace AspNetCore.Authentication.ApiKey
 				throw new InvalidOperationException($"{nameof(ApiKeyOptions.KeyName)} must be set in {nameof(ApiKeyOptions)} when setting up the authentication.");
 			}
 
-			var apiKeyProviderFactory = this.serviceProvider.GetService<IApiKeyProviderFactory>();
+			var apiKeyProviderFactory = this.serviceProvider.GetService<IApiKeyAuthenticationServiceFactory>();
 			if (options.Events?.OnValidateKey == null && options.EventsType == null && options.ApiKeyProviderType == null && apiKeyProviderFactory == null)
 			{
-				throw new InvalidOperationException($"Either {nameof(ApiKeyOptions.Events.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyProvider)} or register an implementation of type {nameof(IApiKeyProviderFactory)} in the service collection.");
+				throw new InvalidOperationException($"Either {nameof(ApiKeyOptions.Events.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.");
 			}
 		}
 	}

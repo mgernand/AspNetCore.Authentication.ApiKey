@@ -73,52 +73,52 @@ namespace AspNetCore.Authentication.ApiKey
 
 
 		/// <summary>
-		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeader<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme);
 
 		/// <summary>
-		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeader<TApiKeyProvider>(authenticationScheme, configureOptions: null);
 
 		/// <summary>
-		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeader<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme, configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeader<TApiKeyProvider>(authenticationScheme, displayName: null, configureOptions: configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
@@ -126,7 +126,7 @@ namespace AspNetCore.Authentication.ApiKey
 		/// <param name="displayName">The display name.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKey<TApiKeyProvider, ApiKeyInHeaderHandler>(authenticationScheme, displayName, configureOptions);
 
 		#endregion // API Key - In Header
@@ -190,52 +190,52 @@ namespace AspNetCore.Authentication.ApiKey
 
 
 		/// <summary>
-		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInAuthorizationHeader<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme);
 
 		/// <summary>
-		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInAuthorizationHeader<TApiKeyProvider>(authenticationScheme, configureOptions: null);
 
 		/// <summary>
-		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInAuthorizationHeader<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme, configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInAuthorizationHeader<TApiKeyProvider>(authenticationScheme, displayName: null, configureOptions: configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Authorization Header authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
@@ -243,7 +243,7 @@ namespace AspNetCore.Authentication.ApiKey
 		/// <param name="displayName">The display name.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInAuthorizationHeader<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKey<TApiKeyProvider, ApiKeyInAuthorizationHeaderHandler>(authenticationScheme, displayName, configureOptions);
 
 		#endregion // API Key - In Authorization Header
@@ -307,52 +307,52 @@ namespace AspNetCore.Authentication.ApiKey
 
 
 		/// <summary>
-		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInQueryParams<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme);
 
 		/// <summary>
-		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInQueryParams<TApiKeyProvider>(authenticationScheme, configureOptions: null);
 
 		/// <summary>
-		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInQueryParams<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme, configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInQueryParams<TApiKeyProvider>(authenticationScheme, displayName: null, configureOptions: configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
@@ -360,7 +360,7 @@ namespace AspNetCore.Authentication.ApiKey
 		/// <param name="displayName">The display name.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKey<TApiKeyProvider, ApiKeyInQueryParamsHandler>(authenticationScheme, displayName, configureOptions);
 
 		#endregion // API Key - In Query Parameters
@@ -424,52 +424,52 @@ namespace AspNetCore.Authentication.ApiKey
 
 
 		/// <summary>
-		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme);
 
 		/// <summary>
-		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the <see cref="ApiKeyOptions.Events"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(authenticationScheme, configureOptions: null);
 
 		/// <summary>
-		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(ApiKeyDefaults.AuthenticationScheme, configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
 		/// <param name="authenticationScheme">The authentication scheme.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(authenticationScheme, displayName: null, configureOptions: configureOptions);
 
 		/// <summary>
-		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyProvider"/> as type parameter.
-		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyProvider"/>.
+		/// Adds API Key - In Header Or Query Parameters authentication scheme to the project. It takes a implementation of <see cref="IApiKeyAuthenticationService"/> as type parameter.
+		/// If <see cref="ApiKeyEvents.OnValidateKey"/> delegate is set on the Events property on <paramref name="configureOptions"/> then it will be used instead of implementation of <see cref="IApiKeyAuthenticationService"/>.
 		/// </summary>
 		/// <typeparam name="TApiKeyProvider"></typeparam>
 		/// <param name="builder"></param>
@@ -477,7 +477,7 @@ namespace AspNetCore.Authentication.ApiKey
 		/// <param name="displayName">The display name.</param>
 		/// <param name="configureOptions">The <see cref="ApiKeyOptions"/>.</param>
 		/// <returns>The instance of <see cref="AuthenticationBuilder"/></returns>
-		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyProvider
+		public static AuthenticationBuilder AddApiKeyInHeaderOrQueryParams<TApiKeyProvider>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions) where TApiKeyProvider : class, IApiKeyAuthenticationService
 			=> builder.AddApiKey<TApiKeyProvider, ApiKeyInHeaderOrQueryParamsHandler>(authenticationScheme, displayName, configureOptions);
 
 		#endregion // API Key - In Header Or Query Parameters
@@ -499,11 +499,11 @@ namespace AspNetCore.Authentication.ApiKey
 		}
 
 		private static AuthenticationBuilder AddApiKey<TApiKeyProvider, TApiKeyHandler>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<ApiKeyOptions> configureOptions)
-			where TApiKeyProvider : class, IApiKeyProvider
+			where TApiKeyProvider : class, IApiKeyAuthenticationService
 			where TApiKeyHandler : AuthenticationHandler<ApiKeyOptions>
 		{
 			// Adds implementation of IApiKeyProvider to the dependency container.
-			builder.Services.AddTransient<IApiKeyProvider, TApiKeyProvider>();
+			builder.Services.AddTransient<IApiKeyAuthenticationService, TApiKeyProvider>();
 
 			// Add the authentication scheme name for the specific options.
 			builder.Services.Configure<ApiKeyOptions>(

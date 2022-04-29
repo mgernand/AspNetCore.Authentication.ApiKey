@@ -43,7 +43,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
                 services =>
                 {
                     var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
-                        .AddApiKeyInAuthorizationHeader<FakeApiKeyProvider>(configureOptions ?? DefaultApiKeyOptions());
+                        .AddApiKeyInAuthorizationHeader<FakeApiKeyAuthenticationService>(configureOptions ?? DefaultApiKeyOptions());
                 }
             );
         }
@@ -53,7 +53,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
 			return BuildTestServer(
 				services =>
 				{
-					services.AddTransient<IApiKeyProviderFactory, FakeApiKeyProviderFactory>();
+					services.AddTransient<IApiKeyAuthenticationServiceFactory, FakeApiKeyAuthenticationServiceFactory>();
 					var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
 						.AddApiKeyInAuthorizationHeader(configureOptions ?? DefaultApiKeyOptions());
 				}
@@ -77,7 +77,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
                 services =>
                 {
                     var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
-                        .AddApiKeyInHeader<FakeApiKeyProvider>(configureOptions ?? DefaultApiKeyOptions());
+                        .AddApiKeyInHeader<FakeApiKeyAuthenticationService>(configureOptions ?? DefaultApiKeyOptions());
                 }
             );
         }
@@ -87,7 +87,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
 			return BuildTestServer(
 				services =>
 				{
-					services.AddTransient<IApiKeyProviderFactory, FakeApiKeyProviderFactory>();
+					services.AddTransient<IApiKeyAuthenticationServiceFactory, FakeApiKeyAuthenticationServiceFactory>();
 					var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
 						.AddApiKeyInHeader(configureOptions ?? DefaultApiKeyOptions());
 				}
@@ -111,7 +111,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
                 services =>
                 {
                     var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
-                        .AddApiKeyInQueryParams<FakeApiKeyProvider>(configureOptions ?? DefaultApiKeyOptions());
+                        .AddApiKeyInQueryParams<FakeApiKeyAuthenticationService>(configureOptions ?? DefaultApiKeyOptions());
                 }
             );
         }
@@ -121,7 +121,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
 			return BuildTestServer(
 				services =>
 				{
-                    services.AddTransient<IApiKeyProviderFactory, FakeApiKeyProviderFactory>();
+                    services.AddTransient<IApiKeyAuthenticationServiceFactory, FakeApiKeyAuthenticationServiceFactory>();
 					var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
 						.AddApiKeyInQueryParams(configureOptions ?? DefaultApiKeyOptions());
 				}
@@ -145,7 +145,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
                 services =>
                 {
                     var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
-                        .AddApiKeyInHeaderOrQueryParams<FakeApiKeyProvider>(configureOptions ?? DefaultApiKeyOptions());
+                        .AddApiKeyInHeaderOrQueryParams<FakeApiKeyAuthenticationService>(configureOptions ?? DefaultApiKeyOptions());
                 }
             );
         }
@@ -155,7 +155,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
 			return BuildTestServer(
 				services =>
 				{
-					services.AddTransient<IApiKeyProviderFactory, FakeApiKeyProviderFactory>();
+					services.AddTransient<IApiKeyAuthenticationServiceFactory, FakeApiKeyAuthenticationServiceFactory>();
 					var authBuilder = services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
 						.AddApiKeyInHeaderOrQueryParams(configureOptions ?? DefaultApiKeyOptions());
 				}

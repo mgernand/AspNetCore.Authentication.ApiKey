@@ -78,8 +78,8 @@ namespace AspNetCore.Authentication.ApiKey
 					|| (!Options.ForLegacyIgnoreExtraValidatedApiKeyCheck && !string.Equals(validatedApiKey.Key, apiKey, StringComparison.OrdinalIgnoreCase))
 				)
 				{
-					Logger.LogError($"Invalid API Key provided by {nameof(IApiKeyProvider)}.");
-					return AuthenticateResult.Fail($"Invalid API Key provided by {nameof(IApiKeyProvider)}.");
+					Logger.LogError($"Invalid API Key provided by {nameof(IApiKeyAuthenticationService)}.");
+					return AuthenticateResult.Fail($"Invalid API Key provided by {nameof(IApiKeyAuthenticationService)}.");
 				}
 
 				return await RaiseAndHandleAuthenticationSucceededAsync(validatedApiKey).ConfigureAwait(false);
@@ -185,31 +185,31 @@ namespace AspNetCore.Authentication.ApiKey
 
 		private async Task<IApiKey> ValidateUsingApiKeyProviderAsync(string apiKey)
 		{
-			IApiKeyProvider apiKeyProvider = null;
+			IApiKeyAuthenticationService apiKeyAuthenticationService = null;
 
 			// Try to get an instance of the IBasicUserValidationServiceFactory.
-			var apiKeyProviderFactory = this.Context.RequestServices.GetService<IApiKeyProviderFactory>();
+			var apiKeyProviderFactory = this.Context.RequestServices.GetService<IApiKeyAuthenticationServiceFactory>();
 
 			// Try to get a IApiKeyProvider instance from the factory.
-			apiKeyProvider = apiKeyProviderFactory?.CreateApiKeyProvider(Options.AuthenticationSchemeName);
+			apiKeyAuthenticationService = apiKeyProviderFactory?.CreateApiKeyProvider(Options.AuthenticationSchemeName);
 
-			if (apiKeyProvider == null && Options.ApiKeyProviderType != null)
+			if (apiKeyAuthenticationService == null && Options.ApiKeyProviderType != null)
 			{
-				apiKeyProvider = ActivatorUtilities.GetServiceOrCreateInstance(Context.RequestServices, Options.ApiKeyProviderType) as IApiKeyProvider;
+				apiKeyAuthenticationService = ActivatorUtilities.GetServiceOrCreateInstance(Context.RequestServices, Options.ApiKeyProviderType) as IApiKeyAuthenticationService;
 			}
 
-			if (apiKeyProvider == null)
+			if (apiKeyAuthenticationService == null)
 			{
-				throw new InvalidOperationException($"Either {nameof(Options.Events.OnValidateKey)} delegate on configure options {nameof(Options.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyProvider)} or register an implementation of type {nameof(IApiKeyProviderFactory)} in the service collection.");
+				throw new InvalidOperationException($"Either {nameof(Options.Events.OnValidateKey)} delegate on configure options {nameof(Options.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.");
 			}
 
 			try
 			{
-				return await apiKeyProvider.ProvideAsync(apiKey).ConfigureAwait(false);
+				return await apiKeyAuthenticationService.AuthenticateAsync(apiKey).ConfigureAwait(false);
 			}
 			finally
 			{
-				if (apiKeyProvider is IDisposable disposableApiKeyProvider)
+				if (apiKeyAuthenticationService is IDisposable disposableApiKeyProvider)
 				{
 					disposableApiKeyProvider.Dispose();
 				}

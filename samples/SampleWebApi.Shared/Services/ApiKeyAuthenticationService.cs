@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 
 namespace SampleWebApi.Services
 {
-	internal class ApiKeyProvider : IApiKeyProvider
+	internal class ApiKeyAuthenticationService : IApiKeyAuthenticationService
 	{
-		private readonly ILogger<IApiKeyProvider> _logger;
+		private readonly ILogger<IApiKeyAuthenticationService> _logger;
 		private readonly IApiKeyRepository _apiKeyRepository;
 
-		public ApiKeyProvider(ILogger<ApiKeyProvider> logger, IApiKeyRepository apiKeyRepository)
+		public ApiKeyAuthenticationService(ILogger<ApiKeyAuthenticationService> logger, IApiKeyRepository apiKeyRepository)
 		{
 			_logger = logger;
 			_apiKeyRepository = apiKeyRepository;
 		}
 
-		public async Task<IApiKey> ProvideAsync(string key)
+		public async Task<IApiKey> AuthenticateAsync(string key)
 		{
 			try
 			{

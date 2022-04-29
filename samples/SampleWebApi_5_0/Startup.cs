@@ -43,7 +43,7 @@ namespace SampleWebApi_5_0
 
                 // The below AddApiKeyInHeaderOrQueryParams with type parameter will add the ApiKeyProvider to the dependency register. 
                 // Please note if OnValidateKey delegete on options.Events is also set then this delegate will be used instead of ApiKeyProvider.
-                .AddApiKeyInHeaderOrQueryParams<ApiKeyProvider>(options =>
+                .AddApiKeyInHeaderOrQueryParams<ApiKeyAuthenticationService>(options =>
                 {
                     options.Realm = "Sample Web API";
                     options.KeyName = "X-API-KEY";

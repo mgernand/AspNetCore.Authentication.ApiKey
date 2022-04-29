@@ -199,7 +199,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests
             Assert.NotNull(apiKeyOptions);
             Assert.Null(apiKeyOptions.ApiKeyProviderType);
 
-            var apiKeyProvider = services.GetService<IApiKeyProvider>();
+            var apiKeyProvider = services.GetService<IApiKeyAuthenticationService>();
             Assert.Null(apiKeyProvider);
         }
 
@@ -213,11 +213,11 @@ namespace AspNetCore.Authentication.ApiKey.Tests
             var apiKeyOptions = apiKeyOptionsSnapshot.Get(ApiKeyDefaults.AuthenticationScheme);
             Assert.NotNull(apiKeyOptions);
             Assert.NotNull(apiKeyOptions.ApiKeyProviderType);
-            Assert.Equal(typeof(FakeApiKeyProvider), apiKeyOptions.ApiKeyProviderType);
+            Assert.Equal(typeof(FakeApiKeyAuthenticationService), apiKeyOptions.ApiKeyProviderType);
 
-            var apiKeyProvider = services.GetService<IApiKeyProvider>();
+            var apiKeyProvider = services.GetService<IApiKeyAuthenticationService>();
             Assert.NotNull(apiKeyProvider);
-            Assert.Equal(typeof(FakeApiKeyProvider), apiKeyProvider.GetType());
+            Assert.Equal(typeof(FakeApiKeyAuthenticationService), apiKeyProvider.GetType());
         }
 
 #if !(NET461 || NETSTANDARD2_0 || NETCOREAPP2_1)
