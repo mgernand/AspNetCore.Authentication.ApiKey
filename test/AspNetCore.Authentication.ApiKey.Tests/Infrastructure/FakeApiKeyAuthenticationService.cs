@@ -78,7 +78,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
 	class FakeApiKeyAuthenticationServiceFactory : IApiKeyAuthenticationServiceFactory
 	{
 		/// <inheritdoc />
-		public IApiKeyAuthenticationService CreateApiKeyProvider(string authenticationSchemaName)
+		public IApiKeyAuthenticationService CreateApiKeyAuthenticationService(string authenticationSchemaName)
 		{
 			return new FakeApiKeyAuthenticationService();
 		}

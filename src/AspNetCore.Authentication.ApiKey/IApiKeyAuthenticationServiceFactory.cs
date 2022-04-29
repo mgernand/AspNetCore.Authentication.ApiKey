@@ -13,6 +13,6 @@ namespace AspNetCore.Authentication.ApiKey
 		/// </summary>
 		/// <param name="authenticationSchemaName"></param>
 		/// <returns></returns>
-		IApiKeyAuthenticationService CreateApiKeyProvider(string authenticationSchemaName);
+		IApiKeyAuthenticationService CreateApiKeyAuthenticationService(string authenticationSchemaName);
 	}
 }

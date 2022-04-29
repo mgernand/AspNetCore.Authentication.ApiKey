@@ -191,7 +191,7 @@ namespace AspNetCore.Authentication.ApiKey
 			var apiKeyProviderFactory = this.Context.RequestServices.GetService<IApiKeyAuthenticationServiceFactory>();
 
 			// Try to get a IApiKeyProvider instance from the factory.
-			apiKeyAuthenticationService = apiKeyProviderFactory?.CreateApiKeyProvider(Options.AuthenticationSchemeName);
+			apiKeyAuthenticationService = apiKeyProviderFactory?.CreateApiKeyAuthenticationService(Options.AuthenticationSchemeName);
 
 			if (apiKeyAuthenticationService == null && Options.ApiKeyProviderType != null)
 			{

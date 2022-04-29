@@ -17,7 +17,7 @@ namespace SampleWebApi.Services
 		}
 
 		/// <inheritdoc />
-		public IApiKeyAuthenticationService CreateApiKeyProvider(string authenticationSchemaName)
+		public IApiKeyAuthenticationService CreateApiKeyAuthenticationService(string authenticationSchemaName)
 		{
 			Debug.WriteLine(authenticationSchemaName);
 			return new ApiKeyAuthenticationService(loggerFactory.CreateLogger<ApiKeyAuthenticationService>(), this.apiKeyRepository);
