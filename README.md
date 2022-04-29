@@ -388,7 +388,7 @@ public void ConfigureServices(IServiceCollection services)
 ## Release Notes
 | Version | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Notes |
 |---------|-------|
-|6.2.0    | <ul><li>Renamed interfaces to be consistent with the Basic library.</li></ul>
+|6.2.1    | <ul><li>Renamed interfaces to be consistent with the Basic library.</li></ul>
 |6.1.0    | <ul><li>Added IApiKeyAuthenticationServiceFactory for creating IApiKeyAuthenticationService instances dynamically based on the scheme name.</li></ul> |
 |6.0.1    | <ul><li>net6.0 support added</li><li>Information log on handler is changed to Debug log when IgnoreAuthenticationIfAllowAnonymous is enabled</li><li>Sample project added</li><li>Readme updated</li><li>Copyright year updated on License</li></ul> |
 |5.1.0    | <ul><li>WWW-Authenticate challenge header now returns SchemeName as scheme part instead of ApiKeyOptions.KeyName</li><li>WWW-Authenticate challenge header now has 2 new parameters 'in' and 'key_name' in value part</li><li>ForLegacyUseKeyNameAsSchemeNameOnWWWAuthenticateHeader added to the ApiKeyOptions</li><li>In Authorization Header now able to use either SchemeName or ApiKeyOptions.KeyName when matching AuthorizationHeader Scheme</li><li>Visibility of all the handlers changed to public [#21](https://github.com/mihirdilip/aspnetcore-authentication-apikey/issues/21)</li><li>Tests added</li><li>Readme updated</li><li>Copyright year updated on License</li></ul> |
