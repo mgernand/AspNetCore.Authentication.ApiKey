@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using Microsoft.AspNetCore.Authentication;
-using System;
-
-namespace AspNetCore.Authentication.ApiKey
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
+    using System;
+    using Microsoft.AspNetCore.Authentication;
+
     /// <summary>
     /// Inherited from <see cref="AuthenticationSchemeOptions"/> to allow extra option properties for 'ApiKey' authentication.
     /// </summary>
@@ -13,7 +13,7 @@ namespace AspNetCore.Authentication.ApiKey
     {
         public ApiKeyOptions()
         {
-            Events = new ApiKeyEvents();
+            Events = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents();
         }
 
         /// <summary>
@@ -39,12 +39,12 @@ namespace AspNetCore.Authentication.ApiKey
 
         /// <summary>
         /// The object provided by the application to process events raised by the api key authentication middleware.
-        /// The application may implement the interface fully, or it may create an instance of <see cref="ApiKeyEvents"/>
+        /// The application may implement the interface fully, or it may create an instance of <see cref="ApiKey.Events.ApiKeyEvents"/>
         /// and assign delegates only to the events it wants to process.
         /// </summary>
-        public new ApiKeyEvents Events
+        public new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents Events
         {
-            get => (ApiKeyEvents)base.Events;
+            get => (MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents)base.Events;
             set => base.Events = value;
         }
 

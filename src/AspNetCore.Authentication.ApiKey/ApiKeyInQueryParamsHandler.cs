@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Linq;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-
-namespace AspNetCore.Authentication.ApiKey
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-	public class ApiKeyInQueryParamsHandler : ApiKeyHandlerBase
+    using System.Linq;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
+    public class ApiKeyInQueryParamsHandler : ApiKeyHandlerBase
 	{
 		public ApiKeyInQueryParamsHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
 			: base(options, logger, encoder, clock)

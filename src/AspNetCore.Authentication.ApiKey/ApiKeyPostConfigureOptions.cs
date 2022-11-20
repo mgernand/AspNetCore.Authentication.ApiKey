@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using System;
-using Microsoft.Extensions.Options;
-
-namespace AspNetCore.Authentication.ApiKey
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-	using Microsoft.Extensions.DependencyInjection;
+    using System;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Options;
 
-	/// <summary>
+    /// <summary>
 	/// This post configure options checks whether the required option properties are set or not on <see cref="ApiKeyOptions"/>.
 	/// </summary>
 	class ApiKeyPostConfigureOptions : IPostConfigureOptions<ApiKeyOptions>

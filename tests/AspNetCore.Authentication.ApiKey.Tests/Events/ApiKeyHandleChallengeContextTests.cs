@@ -1,18 +1,17 @@
 // Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using AspNetCore.Authentication.ApiKey.Tests.Infrastructure;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.TestHost;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace AspNetCore.Authentication.ApiKey.Tests.Events
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Events
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.TestHost;
+    using Xunit;
+
     public class ApiKeyHandleChallengeContextTests : IDisposable
     {
         private readonly List<TestServer> _serversToDispose = new List<TestServer>();
@@ -39,7 +38,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
                 }
             );
             
-            using var response = await client.GetAsync(TestServerBuilder.BaseUrl);
+            using var response = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
             
             Assert.False(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -59,7 +58,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
                 }
             );
 
-            using var response = await client.GetAsync(TestServerBuilder.BaseUrl);
+            using var response = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
 
             Assert.False(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -67,12 +66,12 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
 
 
 
-        private HttpClient BuildClient(Func<ApiKeyHandleChallengeContext, Task> onHandleChallenge)
+        private HttpClient BuildClient(Func<MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyHandleChallengeContext, Task> onHandleChallenge)
         {
-            var server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+            var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
             {
-                options.KeyName = FakeApiKeys.KeyName;
-                options.Realm = TestServerBuilder.Realm;
+                options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+                options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
                 options.Events.OnHandleChallenge = onHandleChallenge;
             });
 

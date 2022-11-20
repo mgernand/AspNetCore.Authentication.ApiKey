@@ -1,20 +1,19 @@
 // Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using AspNetCore.Authentication.ApiKey.Tests.Infrastructure;
-using Microsoft.AspNetCore.TestHost;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace AspNetCore.Authentication.ApiKey.Tests.Events
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Events
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Security.Claims;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.TestHost;
+    using Xunit;
+
     public class ApiKeyValidateKeyContextTests : IDisposable
     {
         private readonly List<TestServer> _serversToDispose = new List<TestServer>();
@@ -34,7 +33,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
                     Assert.Null(context.Result);
                     Assert.False(string.IsNullOrWhiteSpace(context.ApiKey));
 
-                    var apiKey = FakeApiKeys.Keys.FirstOrDefault(k => k.Key.Equals(context.ApiKey, StringComparison.OrdinalIgnoreCase));
+                    var apiKey = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.Keys.FirstOrDefault(k => k.Key.Equals(context.ApiKey, StringComparison.OrdinalIgnoreCase));
                     if (apiKey != null)
                     {
                         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(context.Scheme.Name));
@@ -71,7 +70,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
             using var client = BuildClient(
                 context =>
                 {
-                    var apiKey = FakeApiKeys.Keys.FirstOrDefault(k => k.Key.Equals(context.ApiKey, StringComparison.OrdinalIgnoreCase));
+                    var apiKey = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.Keys.FirstOrDefault(k => k.Key.Equals(context.ApiKey, StringComparison.OrdinalIgnoreCase));
                     if (apiKey != null)
                     {
                         context.ValidationSucceeded();
@@ -106,8 +105,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
         {
             var claimsSource = new List<Claim>
             {
-                FakeApiKeys.FakeNameClaim,
-                FakeApiKeys.FakeRoleClaim
+                MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeNameClaim,
+                MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeRoleClaim
             };
 
             using var client = BuildClient(
@@ -128,8 +127,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
             Assert.NotEmpty(principal.Claims);
 
             Assert.Equal(claimsSource.Count, principal.Claims.Count());
-            Assert.Contains(new ClaimDto(FakeApiKeys.FakeNameClaim), principal.Claims);
-            Assert.Contains(new ClaimDto(FakeApiKeys.FakeRoleClaim), principal.Claims);
+            Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeNameClaim), principal.Claims);
+            Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeRoleClaim), principal.Claims);
         }
 
         [Fact]
@@ -165,8 +164,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
             var ownerName = "Owner";
             var claimsSource = new List<Claim>
             {
-                FakeApiKeys.FakeNameClaim,
-                FakeApiKeys.FakeRoleClaim
+                MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeNameClaim,
+                MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeRoleClaim
             };
 
             using var client = BuildClient(
@@ -187,8 +186,8 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
             Assert.NotEmpty(principal.Claims);
 
             Assert.Equal(claimsSource.Count + 1, principal.Claims.Count());
-            Assert.Contains(new ClaimDto(FakeApiKeys.FakeNameClaim), principal.Claims);
-            Assert.Contains(new ClaimDto(FakeApiKeys.FakeRoleClaim), principal.Claims);
+            Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeNameClaim), principal.Claims);
+            Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeRoleClaim), principal.Claims);
             Assert.Contains(principal.Claims, c => c.Type == ClaimTypes.NameIdentifier && c.Value == ownerName);
         }
 
@@ -240,12 +239,12 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
 
 
 
-        private HttpClient BuildClient(Func<ApiKeyValidateKeyContext, Task> onValidateKey)
+        private HttpClient BuildClient(Func<MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyValidateKeyContext, Task> onValidateKey)
         {
-            var server = TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
+            var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
             {
-                options.KeyName = FakeApiKeys.KeyName;
-                options.Realm = TestServerBuilder.Realm;
+                options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+                options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
                 options.Events.OnValidateKey = onValidateKey;
             });
 
@@ -255,22 +254,22 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
 
         private async Task RunUnauthorizedTests(HttpClient client)
         {
-            using var response_unauthorized = await client.GetAsync(TestServerBuilder.ClaimsPrincipalUrl);
+            using var response_unauthorized = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl);
             Assert.False(response_unauthorized.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.Unauthorized, response_unauthorized.StatusCode);
         }
 
-        private async Task<ClaimsPrincipalDto> RunSuccessTests(HttpClient client)
+        private async Task<MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimsPrincipalDto> RunSuccessTests(HttpClient client)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl);
-            request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
+            using var request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl);
+            request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
             using var response_ok = await client.SendAsync(request);
             Assert.True(response_ok.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.OK, response_ok.StatusCode);
 
             var content = await response_ok.Content.ReadAsStringAsync();
             Assert.False(string.IsNullOrWhiteSpace(content));
-            return JsonSerializer.Deserialize<ClaimsPrincipalDto>(content);
+            return JsonSerializer.Deserialize<MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimsPrincipalDto>(content);
         }
     }
 }

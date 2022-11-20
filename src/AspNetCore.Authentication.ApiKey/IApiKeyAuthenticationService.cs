@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Mihir Dilip, Matthias Gernand. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using System.Threading.Tasks;
-
-namespace AspNetCore.Authentication.ApiKey
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-	/// <summary>
+    using System.Threading.Tasks;
+
+    /// <summary>
 	/// Implementation of this interface will be used by the 'ApiKey' authentication handler to validated and get details from the key.
 	/// </summary>
 	public interface IApiKeyAuthenticationService

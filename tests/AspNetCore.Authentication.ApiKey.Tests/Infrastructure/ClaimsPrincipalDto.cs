@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
-
-namespace AspNetCore.Authentication.ApiKey.Tests.Infrastructure
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Security.Principal;
+
     [Serializable]
     struct ClaimsPrincipalDto
     {

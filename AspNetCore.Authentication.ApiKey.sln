@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Authentication.A
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SampleWebApi.Shared", "samples\SampleWebApi.Shared\SampleWebApi.Shared.shproj", "{E544FB20-29F3-41F5-A78E-6164F9C43B3C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleWebApi_6_0", "samples\SampleWebApi_6_0\SampleWebApi_6_0.csproj", "{13031DBF-54EA-4A64-A03B-88B4CED1D5F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleWebApi", "samples\SampleWebApi\SampleWebApi.csproj", "{0B6FB864-E2AE-4086-8E51-53A6A079E9FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{5A9AAE35-66E9-408E-B763-C71F0C0751B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A9AAE35-66E9-408E-B763-C71F0C0751B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A9AAE35-66E9-408E-B763-C71F0C0751B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13031DBF-54EA-4A64-A03B-88B4CED1D5F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13031DBF-54EA-4A64-A03B-88B4CED1D5F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13031DBF-54EA-4A64-A03B-88B4CED1D5F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13031DBF-54EA-4A64-A03B-88B4CED1D5F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B6FB864-E2AE-4086-8E51-53A6A079E9FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B6FB864-E2AE-4086-8E51-53A6A079E9FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B6FB864-E2AE-4086-8E51-53A6A079E9FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B6FB864-E2AE-4086-8E51-53A6A079E9FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,13 +53,13 @@ Global
 		{09D17A19-0406-487A-810A-24107AE767F8} = {BCEF726B-D658-40C2-9099-7001BA519E71}
 		{5A9AAE35-66E9-408E-B763-C71F0C0751B2} = {A15FB7AB-5B7A-4428-BEBA-32DEE3C88C39}
 		{E544FB20-29F3-41F5-A78E-6164F9C43B3C} = {3C777BBB-7464-43FB-A046-EA465791AB0C}
-		{13031DBF-54EA-4A64-A03B-88B4CED1D5F5} = {3C777BBB-7464-43FB-A046-EA465791AB0C}
+		{0B6FB864-E2AE-4086-8E51-53A6A079E9FD} = {3C777BBB-7464-43FB-A046-EA465791AB0C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70815049-1680-480A-BF5A-00536D6C9C20}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		samples\SampleWebApi.Shared\SampleWebApi.Shared.projitems*{13031dbf-54ea-4a64-a03b-88b4ced1d5f5}*SharedItemsImports = 5
+		samples\SampleWebApi.Shared\SampleWebApi.Shared.projitems*{0b6fb864-e2ae-4086-8e51-53a6a079e9fd}*SharedItemsImports = 5
 		samples\SampleWebApi.Shared\SampleWebApi.Shared.projitems*{e544fb20-29f3-41f5-a78e-6164f9c43b3c}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
