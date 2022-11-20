@@ -3,20 +3,22 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Claims;
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Security.Claims;
 
-    /// <summary>
-	/// Utility class.
+	/// <summary>
+	///     Utility class.
 	/// </summary>
 	internal static class ApiKeyUtils
 	{
 		/// <summary>
-		/// Builds Claims Principal from the provided information. 
-		/// If the <paramref name="claims"/> does not have claim of type <see cref="ClaimTypes.NameIdentifier"/> then <paramref name="ownerName"/> will be added as claim of type <see cref="ClaimTypes.NameIdentifier"/>.
-		/// If the <paramref name="claims"/> does not have claim of type <see cref="ClaimTypes.Name"/> then <paramref name="ownerName"/> will be added as claim of type <see cref="ClaimTypes.Name"/>.
+		///     Builds Claims Principal from the provided information.
+		///     If the <paramref name="claims" /> does not have claim of type <see cref="ClaimTypes.NameIdentifier" /> then
+		///     <paramref name="ownerName" /> will be added as claim of type <see cref="ClaimTypes.NameIdentifier" />.
+		///     If the <paramref name="claims" /> does not have claim of type <see cref="ClaimTypes.Name" /> then
+		///     <paramref name="ownerName" /> will be added as claim of type <see cref="ClaimTypes.Name" />.
 		/// </summary>
 		/// <param name="ownerName">The owner name.</param>
 		/// <param name="schemeName">The scheme name.</param>
@@ -25,19 +27,25 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		/// <returns></returns>
 		internal static ClaimsPrincipal BuildClaimsPrincipal(string ownerName, string schemeName, string claimsIssuer, IEnumerable<Claim> claims = null)
 		{
-			if (string.IsNullOrWhiteSpace(schemeName)) throw new ArgumentNullException(nameof(schemeName));
-
-			var claimsList = new List<Claim>();
-			if (claims != null) claimsList.AddRange(claims);
-
-			if (!string.IsNullOrWhiteSpace(ownerName))
+			if(string.IsNullOrWhiteSpace(schemeName))
 			{
-				if (!claimsList.Any(c => c.Type.Equals(ClaimTypes.NameIdentifier, StringComparison.OrdinalIgnoreCase)))
+				throw new ArgumentNullException(nameof(schemeName));
+			}
+
+			List<Claim> claimsList = new List<Claim>();
+			if(claims != null)
+			{
+				claimsList.AddRange(claims);
+			}
+
+			if(!string.IsNullOrWhiteSpace(ownerName))
+			{
+				if(!claimsList.Any(c => c.Type.Equals(ClaimTypes.NameIdentifier, StringComparison.OrdinalIgnoreCase)))
 				{
 					claimsList.Add(new Claim(ClaimTypes.NameIdentifier, ownerName, ClaimValueTypes.String, claimsIssuer));
 				}
 
-				if (!claimsList.Any(c => c.Type.Equals(ClaimTypes.Name, StringComparison.OrdinalIgnoreCase)))
+				if(!claimsList.Any(c => c.Type.Equals(ClaimTypes.Name, StringComparison.OrdinalIgnoreCase)))
 				{
 					claimsList.Add(new Claim(ClaimTypes.Name, ownerName, ClaimValueTypes.String, claimsIssuer));
 				}

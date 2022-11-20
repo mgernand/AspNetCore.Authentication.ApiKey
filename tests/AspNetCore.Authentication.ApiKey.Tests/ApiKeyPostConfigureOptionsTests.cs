@@ -3,37 +3,37 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 {
-    using System;
-    using System.Threading.Tasks;
-    using Xunit;
+	using System;
+	using System.Threading.Tasks;
+	using Microsoft.AspNetCore.TestHost;
+	using Xunit;
 
-    public class ApiKeyPostConfigureOptionsTests
-    {
-		static string KeyName = "X-API-KEY";
+	public class ApiKeyPostConfigureOptionsTests
+	{
+		private static readonly string KeyName = "X-API-KEY";
 
-		[Fact]
-		public async Task PostConfigure_no_option_set_throws_exception()
+		private async Task RunAuthInitAsync(Action<ApiKeyOptions> configureOptions)
 		{
-			await Assert.ThrowsAsync<InvalidOperationException>(() => RunAuthInitAsync(_ => { }));
+			TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServer(configureOptions);
+			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+		}
+
+		private async Task RunAuthInitWithProviderAsync(Action<ApiKeyOptions> configureOptions)
+		{
+			TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(configureOptions);
+			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+		}
+
+		private async Task RunAuthInitWithServiceFactoryAsync(Action<ApiKeyOptions> configureOptions)
+		{
+			TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProviderFactory(configureOptions);
+			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
 		}
 
 		[Fact]
-		public async Task PostConfigure_Realm_or_SuppressWWWAuthenticateHeader_not_set_throws_exception()
+		public async Task PostConfigure_Events_OnValidateKey_not_set_and_IApiKeyProvider_not_set_but_IApiKeyProviderFactory_registered_no_exception_thrown()
 		{
-			var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-				RunAuthInitWithProviderAsync(options =>
-				{
-					options.KeyName = KeyName;
-				})
-			);
-
-			Assert.Contains($"{nameof(ApiKeyOptions.Realm)} must be set in {nameof(ApiKeyOptions)} when setting up the authentication.", exception.Message);
-		}
-
-		[Fact]
-		public async Task PostConfigure_Realm_not_set_but_SuppressWWWAuthenticateHeader_set_no_exception_thrown()
-		{
-			await RunAuthInitWithProviderAsync(options =>
+			await this.RunAuthInitWithServiceFactoryAsync(options =>
 			{
 				options.SuppressWWWAuthenticateHeader = true;
 				options.KeyName = KeyName;
@@ -41,32 +41,9 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		}
 
 		[Fact]
-		public async Task PostConfigure_Realm_set_but_SuppressWWWAuthenticateHeader_not_set_no_exception_thrown()
+		public async Task PostConfigure_Events_OnValidateKey_not_set_but_IApiKeyProvider_set_no_exception_thrown()
 		{
-			await RunAuthInitWithProviderAsync(options =>
-			{
-				options.Realm = "Test";
-				options.KeyName = KeyName;
-			});
-		}
-
-		[Fact]
-		public async Task PostConfigure_KeyName_not_set_throws_exception()
-		{
-			var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-				RunAuthInitWithProviderAsync(options =>
-				{
-					options.SuppressWWWAuthenticateHeader = true;
-				})
-			);
-
-			Assert.Contains($"{nameof(ApiKeyOptions.KeyName)} must be set in {nameof(ApiKeyOptions)} when setting up the authentication.", exception.Message);
-		}
-
-		[Fact]
-		public async Task PostConfigure_KeyName_set_no_exception_thrown()
-		{
-			await RunAuthInitWithProviderAsync(options =>
+			await this.RunAuthInitWithProviderAsync(options =>
 			{
 				options.SuppressWWWAuthenticateHeader = true;
 				options.KeyName = KeyName;
@@ -76,8 +53,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task PostConfigure_Events_OnValidateKey_or_IApiKeyProvider_or_IApiKeyProviderFactory_not_set_throws_exception()
 		{
-			var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-				RunAuthInitAsync(options =>
+			InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => this.RunAuthInitAsync(options =>
 				{
 					options.SuppressWWWAuthenticateHeader = true;
 					options.KeyName = KeyName;
@@ -90,7 +66,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task PostConfigure_Events_OnValidateKey_set_but_IApiKeyProvider_not_set_no_exception_thrown()
 		{
-			await RunAuthInitAsync(options =>
+			await this.RunAuthInitAsync(options =>
 			{
 				options.Events.OnValidateKey = _ => Task.CompletedTask;
 				options.SuppressWWWAuthenticateHeader = true;
@@ -99,9 +75,21 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		}
 
 		[Fact]
-		public async Task PostConfigure_Events_OnValidateKey_not_set_but_IApiKeyProvider_set_no_exception_thrown()
+		public async Task PostConfigure_KeyName_not_set_throws_exception()
 		{
-			await RunAuthInitWithProviderAsync(options =>
+			InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => this.RunAuthInitWithProviderAsync(options =>
+				{
+					options.SuppressWWWAuthenticateHeader = true;
+				})
+			);
+
+			Assert.Contains($"{nameof(ApiKeyOptions.KeyName)} must be set in {nameof(ApiKeyOptions)} when setting up the authentication.", exception.Message);
+		}
+
+		[Fact]
+		public async Task PostConfigure_KeyName_set_no_exception_thrown()
+		{
+			await this.RunAuthInitWithProviderAsync(options =>
 			{
 				options.SuppressWWWAuthenticateHeader = true;
 				options.KeyName = KeyName;
@@ -109,31 +97,43 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		}
 
 		[Fact]
-		public async Task PostConfigure_Events_OnValidateKey_not_set_and_IApiKeyProvider_not_set_but_IApiKeyProviderFactory_registered_no_exception_thrown()
+		public async Task PostConfigure_no_option_set_throws_exception()
 		{
-			await RunAuthInitWithServiceFactoryAsync(options =>
+			await Assert.ThrowsAsync<InvalidOperationException>(() => this.RunAuthInitAsync(_ =>
+			{
+			}));
+		}
+
+		[Fact]
+		public async Task PostConfigure_Realm_not_set_but_SuppressWWWAuthenticateHeader_set_no_exception_thrown()
+		{
+			await this.RunAuthInitWithProviderAsync(options =>
 			{
 				options.SuppressWWWAuthenticateHeader = true;
 				options.KeyName = KeyName;
 			});
 		}
 
-		private async Task RunAuthInitAsync(Action<ApiKeyOptions> configureOptions)
+		[Fact]
+		public async Task PostConfigure_Realm_or_SuppressWWWAuthenticateHeader_not_set_throws_exception()
 		{
-			var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServer(configureOptions);
-			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+			InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() => this.RunAuthInitWithProviderAsync(options =>
+				{
+					options.KeyName = KeyName;
+				})
+			);
+
+			Assert.Contains($"{nameof(ApiKeyOptions.Realm)} must be set in {nameof(ApiKeyOptions)} when setting up the authentication.", exception.Message);
 		}
 
-		private async Task RunAuthInitWithProviderAsync(Action<ApiKeyOptions> configureOptions)
+		[Fact]
+		public async Task PostConfigure_Realm_set_but_SuppressWWWAuthenticateHeader_not_set_no_exception_thrown()
 		{
-			var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(configureOptions);
-			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-		}
-
-		private async Task RunAuthInitWithServiceFactoryAsync(Action<ApiKeyOptions> configureOptions)
-		{
-			var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProviderFactory(configureOptions);
-			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+			await this.RunAuthInitWithProviderAsync(options =>
+			{
+				options.Realm = "Test";
+				options.KeyName = KeyName;
+			});
 		}
 	}
 }

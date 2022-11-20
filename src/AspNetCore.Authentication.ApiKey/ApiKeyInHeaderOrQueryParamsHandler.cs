@@ -3,17 +3,18 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-    using System;
-    using System.Linq;
-    using System.Net.Http.Headers;
-    using System.Text.Encodings.Web;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
-    using Microsoft.Net.Http.Headers;
+	using System;
+	using System.Linq;
+	using System.Net.Http.Headers;
+	using System.Text.Encodings.Web;
+	using System.Threading.Tasks;
+	using Microsoft.AspNetCore.Authentication;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+	using Microsoft.Extensions.Primitives;
+	using Microsoft.Net.Http.Headers;
 
-    public class ApiKeyInHeaderOrQueryParamsHandler : ApiKeyHandlerBase
+	public class ApiKeyInHeaderOrQueryParamsHandler : ApiKeyHandlerBase
 	{
 		public ApiKeyInHeaderOrQueryParamsHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
 			: base(options, logger, encoder, clock)
@@ -23,22 +24,22 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		protected override Task<string> ParseApiKeyAsync()
 		{
 			// Try query parameter
-			if (Request.Query.TryGetValue(Options.KeyName, out var value))
+			if(this.Request.Query.TryGetValue(this.Options.KeyName, out StringValues value))
 			{
 				return Task.FromResult(value.FirstOrDefault());
 			}
 
 			// No ApiKey query parameter found try headers
-			if (Request.Headers.TryGetValue(Options.KeyName, out var headerValue))
+			if(this.Request.Headers.TryGetValue(this.Options.KeyName, out StringValues headerValue))
 			{
 				return Task.FromResult(headerValue.FirstOrDefault());
 			}
 
 			// No ApiKey query parameter or header found then try Authorization header
-			if (Request.Headers.ContainsKey(HeaderNames.Authorization)
-					&& AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var authHeaderValue)
-					&& authHeaderValue.Scheme.Equals(Options.KeyName, StringComparison.OrdinalIgnoreCase)
-			)
+			if(this.Request.Headers.ContainsKey(HeaderNames.Authorization)
+			   && AuthenticationHeaderValue.TryParse(this.Request.Headers[HeaderNames.Authorization], out AuthenticationHeaderValue authHeaderValue)
+			   && authHeaderValue.Scheme.Equals(this.Options.KeyName, StringComparison.OrdinalIgnoreCase)
+			  )
 			{
 				return Task.FromResult(authHeaderValue.Parameter);
 			}

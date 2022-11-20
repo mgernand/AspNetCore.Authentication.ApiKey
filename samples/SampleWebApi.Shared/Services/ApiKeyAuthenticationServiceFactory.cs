@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using SampleWebApi.Repositories;
-using System.Diagnostics;
-
-namespace SampleWebApi.Services
+﻿namespace SampleWebApi.Services
 {
-	internal class ApiKeyAuthenticationServiceFactory : MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKeyAuthenticationServiceFactory
+	using System.Diagnostics;
+	using MadEyeMatt.AspNetCore.Authentication.ApiKey;
+	using Microsoft.Extensions.Logging;
+	using SampleWebApi.Repositories;
+
+	internal class ApiKeyAuthenticationServiceFactory : IApiKeyAuthenticationServiceFactory
 	{
 		private readonly ILoggerFactory loggerFactory;
 		private readonly IApiKeyRepository apiKeyRepository;
@@ -16,10 +17,10 @@ namespace SampleWebApi.Services
 		}
 
 		/// <inheritdoc />
-		public MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKeyAuthenticationService CreateApiKeyAuthenticationService(string authenticationSchemaName)
+		public IApiKeyAuthenticationService CreateApiKeyAuthenticationService(string authenticationSchemaName)
 		{
 			Debug.WriteLine(authenticationSchemaName);
-			return new ApiKeyAuthenticationService(loggerFactory.CreateLogger<ApiKeyAuthenticationService>(), this.apiKeyRepository);
+			return new ApiKeyAuthenticationService(this.loggerFactory.CreateLogger<ApiKeyAuthenticationService>(), this.apiKeyRepository);
 		}
 	}
 }

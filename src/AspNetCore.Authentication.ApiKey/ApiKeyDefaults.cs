@@ -4,12 +4,12 @@
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
 	/// <summary>
-	/// Default values used by api key authentication.
+	///     Default values used by api key authentication.
 	/// </summary>
 	public static class ApiKeyDefaults
 	{
 		/// <summary>
-		/// Default value for AuthenticationScheme 
+		///     Default value for AuthenticationScheme
 		/// </summary>
 		public const string AuthenticationScheme = "ApiKey";
 	}

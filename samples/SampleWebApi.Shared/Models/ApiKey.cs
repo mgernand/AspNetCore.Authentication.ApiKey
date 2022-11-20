@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-
-namespace SampleWebApi.Models
+﻿namespace SampleWebApi.Models
 {
-	class ApiKey : MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey
+	using System.Collections.Generic;
+	using System.Security.Claims;
+	using MadEyeMatt.AspNetCore.Authentication.ApiKey;
+
+	internal class ApiKey : IApiKey
 	{
 		public ApiKey(string key, string owner, List<Claim> claims = null)
 		{
-			Key = key;
-			OwnerName = owner;
-			Claims = claims ?? new List<Claim>();
+			this.Key = key;
+			this.OwnerName = owner;
+			this.Claims = claims ?? new List<Claim>();
 		}
 
 		public string Key { get; }

@@ -3,14 +3,14 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 {
-    using Xunit;
+	using Xunit;
 
-    public class ApiKeyDefaultsTests
-    {
-        [Fact]
-        public void AuthenticationSchemeValueTest()
-        {
-            Assert.Equal("ApiKey", ApiKeyDefaults.AuthenticationScheme);
-        }
-    }
+	public class ApiKeyDefaultsTests
+	{
+		[Fact]
+		public void AuthenticationSchemeValueTest()
+		{
+			Assert.Equal("ApiKey", ApiKeyDefaults.AuthenticationScheme);
+		}
+	}
 }

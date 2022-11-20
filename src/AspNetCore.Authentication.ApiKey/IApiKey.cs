@@ -3,26 +3,26 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-    using System.Collections.Generic;
-    using System.Security.Claims;
+	using System.Collections.Generic;
+	using System.Security.Claims;
 
-    /// <summary>
-	/// API Key Details
+	/// <summary>
+	///     API Key Details
 	/// </summary>
 	public interface IApiKey
 	{
 		/// <summary>
-		/// API Key
+		///     API Key
 		/// </summary>
 		string Key { get; }
 
 		/// <summary>
-		/// Owner of the API Key. It can be username or any other key owner name.
+		///     Owner of the API Key. It can be username or any other key owner name.
 		/// </summary>
 		string OwnerName { get; }
 
 		/// <summary>
-		/// Optional list of claims to be sent back with the authentication request.
+		///     Optional list of claims to be sent back with the authentication request.
 		/// </summary>
 		IReadOnlyCollection<Claim> Claims { get; }
 	}

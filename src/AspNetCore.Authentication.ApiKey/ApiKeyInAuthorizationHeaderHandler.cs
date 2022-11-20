@@ -3,16 +3,16 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-    using System;
-    using System.Net.Http.Headers;
-    using System.Text.Encodings.Web;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
-    using Microsoft.Net.Http.Headers;
+	using System;
+	using System.Net.Http.Headers;
+	using System.Text.Encodings.Web;
+	using System.Threading.Tasks;
+	using Microsoft.AspNetCore.Authentication;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+	using Microsoft.Net.Http.Headers;
 
-    public class ApiKeyInAuthorizationHeaderHandler : ApiKeyHandlerBase
+	public class ApiKeyInAuthorizationHeaderHandler : ApiKeyHandlerBase
 	{
 		public ApiKeyInAuthorizationHeaderHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
 			: base(options, logger, encoder, clock)
@@ -21,12 +21,12 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 
 		protected override Task<string> ParseApiKeyAsync()
 		{
-			if (Request.Headers.ContainsKey(HeaderNames.Authorization)
-					&& AuthenticationHeaderValue.TryParse(Request.Headers[HeaderNames.Authorization], out var headerValue)
-					&& (headerValue.Scheme.Equals(Scheme.Name, StringComparison.OrdinalIgnoreCase) 
-						|| headerValue.Scheme.Equals(Options.KeyName, StringComparison.OrdinalIgnoreCase)
-					)
-			)
+			if(this.Request.Headers.ContainsKey(HeaderNames.Authorization)
+			   && AuthenticationHeaderValue.TryParse(this.Request.Headers[HeaderNames.Authorization], out AuthenticationHeaderValue headerValue)
+			   && (headerValue.Scheme.Equals(this.Scheme.Name, StringComparison.OrdinalIgnoreCase)
+				   || headerValue.Scheme.Equals(this.Options.KeyName, StringComparison.OrdinalIgnoreCase)
+			   )
+			  )
 			{
 				return Task.FromResult(headerValue.Parameter);
 			}
