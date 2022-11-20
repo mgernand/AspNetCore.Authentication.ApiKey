@@ -3,14 +3,15 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-    using System;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Options;
+	using System;
+	using Microsoft.Extensions.DependencyInjection;
+	using Microsoft.Extensions.Options;
 
-    /// <summary>
-	/// This post configure options checks whether the required option properties are set or not on <see cref="ApiKeyOptions"/>.
+	/// <summary>
+	///     This post configure options checks whether the required option properties are set or not on
+	///     <see cref="ApiKeyOptions" />.
 	/// </summary>
-	class ApiKeyPostConfigureOptions : IPostConfigureOptions<ApiKeyOptions>
+	internal class ApiKeyPostConfigureOptions : IPostConfigureOptions<ApiKeyOptions>
 	{
 		private readonly IServiceProvider serviceProvider;
 
@@ -21,18 +22,18 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 
 		public void PostConfigure(string name, ApiKeyOptions options)
 		{
-			if (!options.SuppressWWWAuthenticateHeader && string.IsNullOrWhiteSpace(options.Realm))
+			if(!options.SuppressWWWAuthenticateHeader && string.IsNullOrWhiteSpace(options.Realm))
 			{
 				throw new InvalidOperationException($"{nameof(ApiKeyOptions.Realm)} must be set in {nameof(ApiKeyOptions)} when setting up the authentication.");
 			}
 
-			if (string.IsNullOrWhiteSpace(options.KeyName))
+			if(string.IsNullOrWhiteSpace(options.KeyName))
 			{
 				throw new InvalidOperationException($"{nameof(ApiKeyOptions.KeyName)} must be set in {nameof(ApiKeyOptions)} when setting up the authentication.");
 			}
 
-			var apiKeyProviderFactory = this.serviceProvider.GetService<IApiKeyAuthenticationServiceFactory>();
-			if (options.Events?.OnValidateKey == null && options.EventsType == null && options.ApiKeyProviderType == null && apiKeyProviderFactory == null)
+			IApiKeyAuthenticationServiceFactory apiKeyProviderFactory = this.serviceProvider.GetService<IApiKeyAuthenticationServiceFactory>();
+			if(options.Events?.OnValidateKey == null && options.EventsType == null && options.ApiKeyProviderType == null && apiKeyProviderFactory == null)
 			{
 				throw new InvalidOperationException($"Either {nameof(ApiKeyOptions.Events.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.");
 			}

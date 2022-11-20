@@ -1,25 +1,26 @@
-﻿using SampleWebApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace SampleWebApi.Repositories
+﻿namespace SampleWebApi.Repositories
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Threading.Tasks;
+	using MadEyeMatt.AspNetCore.Authentication.ApiKey;
+	using SampleWebApi.Models;
+
 	/// <summary>
-	/// NOTE: DO NOT USE THIS IMPLEMENTATION. THIS IS FOR DEMO PURPOSE ONLY
+	///     NOTE: DO NOT USE THIS IMPLEMENTATION. THIS IS FOR DEMO PURPOSE ONLY
 	/// </summary>
 	public class InMemoryApiKeyRepository : IApiKeyRepository
 	{
-		private List<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey> _cache = new List<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey>
+		private readonly List<IApiKey> cache = new List<IApiKey>
 		{
 			new ApiKey("Key1", "Admin"),
-			new ApiKey("Key2", "User"),
+			new ApiKey("Key2", "User")
 		};
 
-		public Task<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey> GetApiKeyAsync(string key)
+		public Task<IApiKey> GetApiKeyAsync(string key)
 		{
-			var apiKey = _cache.FirstOrDefault(k => k.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
+			IApiKey apiKey = this.cache.FirstOrDefault(k => k.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 			return Task.FromResult(apiKey);
 		}
 	}

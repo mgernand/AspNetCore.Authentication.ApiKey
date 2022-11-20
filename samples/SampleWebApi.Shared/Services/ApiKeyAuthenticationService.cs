@@ -1,29 +1,30 @@
-using Microsoft.Extensions.Logging;
-using SampleWebApi.Repositories;
-using System.Threading.Tasks;
-
 namespace SampleWebApi.Services
 {
-	internal class ApiKeyAuthenticationService : MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKeyAuthenticationService
+	using System.Threading.Tasks;
+	using MadEyeMatt.AspNetCore.Authentication.ApiKey;
+	using Microsoft.Extensions.Logging;
+	using SampleWebApi.Repositories;
+
+	internal class ApiKeyAuthenticationService : IApiKeyAuthenticationService
 	{
-		private readonly ILogger<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKeyAuthenticationService> _logger;
-		private readonly IApiKeyRepository _apiKeyRepository;
+		private readonly ILogger<IApiKeyAuthenticationService> logger;
+		private readonly IApiKeyRepository apiKeyRepository;
 
 		public ApiKeyAuthenticationService(ILogger<ApiKeyAuthenticationService> logger, IApiKeyRepository apiKeyRepository)
 		{
-			_logger = logger;
-			_apiKeyRepository = apiKeyRepository;
+			this.logger = logger;
+			this.apiKeyRepository = apiKeyRepository;
 		}
 
-		public async Task<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey> AuthenticateAsync(string key)
+		public async Task<IApiKey> AuthenticateAsync(string key)
 		{
 			try
 			{
-				return await _apiKeyRepository.GetApiKeyAsync(key);
+				return await this.apiKeyRepository.GetApiKeyAsync(key);
 			}
-			catch (System.Exception exception)
+			catch(System.Exception exception)
 			{
-				_logger.LogError(exception, exception.Message);
+				this.logger.LogError(exception, exception.Message);
 				throw;
 			}
 		}

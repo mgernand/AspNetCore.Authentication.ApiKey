@@ -4,12 +4,13 @@
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
 	/// <summary>
-	/// Implementation of this interface will be used by the 'ApiKey' authentication handler to get a schema specific <see cref="IApiKeyAuthenticationService"/>.
+	///     Implementation of this interface will be used by the 'ApiKey' authentication handler to get a schema specific
+	///     <see cref="IApiKeyAuthenticationService" />.
 	/// </summary>
 	public interface IApiKeyAuthenticationServiceFactory
 	{
 		/// <summary>
-		/// Implementation of the service creation logic.
+		///     Implementation of the service creation logic.
 		/// </summary>
 		/// <param name="authenticationSchemaName"></param>
 		/// <returns></returns>

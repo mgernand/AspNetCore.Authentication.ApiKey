@@ -3,18 +3,20 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-    using System;
-    using System.Text.Encodings.Web;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
-    using Microsoft.Net.Http.Headers;
+	using System;
+	using System.Security.Claims;
+	using System.Text.Encodings.Web;
+	using System.Threading.Tasks;
+	using MadEyeMatt.AspNetCore.Authentication.ApiKey.Events;
+	using Microsoft.AspNetCore.Authentication;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.Extensions.DependencyInjection;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+	using Microsoft.Net.Http.Headers;
 
-    /// <summary>
-	/// Inherited from <see cref="AuthenticationHandler{TOptions}"/> for api key authentication.
+	/// <summary>
+	///     Inherited from <see cref="AuthenticationHandler{TOptions}" /> for api key authentication.
 	/// </summary>
 	public abstract class ApiKeyHandlerBase : AuthenticationHandler<ApiKeyOptions>
 	{
@@ -23,73 +25,80 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		{
 		}
 
-		private string Challenge => $"{GetWwwAuthenticateSchemeName()} realm=\"{Options.Realm}\", charset=\"UTF-8\", in=\"{GetWwwAuthenticateInParameter()}\", key_name=\"{Options.KeyName}\"";
+		private string Challenge => $"{this.GetWwwAuthenticateSchemeName()} realm=\"{this.Options.Realm}\", charset=\"UTF-8\", in=\"{this.GetWwwAuthenticateInParameter()}\", key_name=\"{this.Options.KeyName}\"";
 
 		/// <summary>
-		/// Get or set <see cref="ApiKey.Events.ApiKeyEvents"/>.
+		///     Get or set <see cref="ApiKey.Events.ApiKeyEvents" />.
 		/// </summary>
-		protected new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents Events { get => (MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents)base.Events; set => base.Events = value; }
+		protected new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents Events
+		{
+			get => (MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents)base.Events;
+			set => base.Events = value;
+		}
 
 		/// <summary>
-		/// Create an instance of <see cref="ApiKey.Events.ApiKeyEvents"/>.
+		///     Create an instance of <see cref="ApiKey.Events.ApiKeyEvents" />.
 		/// </summary>
 		/// <returns></returns>
-		protected override Task<object> CreateEventsAsync() => Task.FromResult<object>(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents());
+		protected override Task<object> CreateEventsAsync()
+		{
+			return Task.FromResult<object>(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents());
+		}
 
 		protected abstract Task<string> ParseApiKeyAsync();
 
 		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
-			if (IgnoreAuthenticationIfAllowAnonymous())
+			if(this.IgnoreAuthenticationIfAllowAnonymous())
 			{
-				Logger.LogDebug("AllowAnonymous found on the endpoint so request was not authenticated.");
+				this.Logger.LogDebug("AllowAnonymous found on the endpoint so request was not authenticated.");
 				return AuthenticateResult.NoResult();
 			}
 
-			var apiKey = string.Empty;
+			string apiKey = string.Empty;
 			try
 			{
-				apiKey = await ParseApiKeyAsync().ConfigureAwait(false);
+				apiKey = await this.ParseApiKeyAsync().ConfigureAwait(false);
 			}
-			catch (Exception exception)
+			catch(Exception exception)
 			{
-				Logger.LogError(exception, "Error parsing api key.");
+				this.Logger.LogError(exception, "Error parsing api key.");
 				return AuthenticateResult.Fail("Error parsing api key." + Environment.NewLine + exception.Message);
 			}
 
-			if (string.IsNullOrWhiteSpace(apiKey))
+			if(string.IsNullOrWhiteSpace(apiKey))
 			{
-				Logger.LogInformation("No Api Key found in the request.");
+				this.Logger.LogInformation("No Api Key found in the request.");
 				return AuthenticateResult.NoResult();
 			}
 
 			try
 			{
-				var validateCredentialsResult = await RaiseAndHandleEventValidateKeyAsync(apiKey).ConfigureAwait(false);
-				if (validateCredentialsResult != null)
+				AuthenticateResult validateCredentialsResult = await this.RaiseAndHandleEventValidateKeyAsync(apiKey).ConfigureAwait(false);
+				if(validateCredentialsResult != null)
 				{
 					// If result is set then return it.
 					return validateCredentialsResult;
 				}
 
 				// Validate using the implementation of IApiKeyProvider.
-				var validatedApiKey = await ValidateUsingApiKeyProviderAsync(apiKey).ConfigureAwait(false);
-				if (validatedApiKey == null
-					|| (!Options.ForLegacyIgnoreExtraValidatedApiKeyCheck && !string.Equals(validatedApiKey.Key, apiKey, StringComparison.OrdinalIgnoreCase))
-				)
+				IApiKey validatedApiKey = await this.ValidateUsingApiKeyProviderAsync(apiKey).ConfigureAwait(false);
+				if(validatedApiKey == null
+				   || (!this.Options.ForLegacyIgnoreExtraValidatedApiKeyCheck && !string.Equals(validatedApiKey.Key, apiKey, StringComparison.OrdinalIgnoreCase))
+				  )
 				{
-					Logger.LogError($"Invalid API Key provided by {nameof(IApiKeyAuthenticationService)}.");
+					this.Logger.LogError($"Invalid API Key provided by {nameof(IApiKeyAuthenticationService)}.");
 					return AuthenticateResult.Fail($"Invalid API Key provided by {nameof(IApiKeyAuthenticationService)}.");
 				}
 
-				return await RaiseAndHandleAuthenticationSucceededAsync(validatedApiKey).ConfigureAwait(false);
+				return await this.RaiseAndHandleAuthenticationSucceededAsync(validatedApiKey).ConfigureAwait(false);
 			}
-			catch (Exception exception)
+			catch(Exception exception)
 			{
-				var authenticationFailedContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyAuthenticationFailedContext(Context, Scheme, Options, exception);
-				await Events.AuthenticationFailedAsync(authenticationFailedContext).ConfigureAwait(false);
+				ApiKeyAuthenticationFailedContext authenticationFailedContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyAuthenticationFailedContext(this.Context, this.Scheme, this.Options, exception);
+				await this.Events.AuthenticationFailedAsync(authenticationFailedContext).ConfigureAwait(false);
 
-				if (authenticationFailedContext.Result != null)
+				if(authenticationFailedContext.Result != null)
 				{
 					return authenticationFailedContext.Result;
 				}
@@ -98,13 +107,13 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 			}
 		}
 
-		/// <inheritdoc/>
+		/// <inheritdoc />
 		protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
 		{
 			// Raise handle forbidden event.
-			var handleForbiddenContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyHandleForbiddenContext(Context, Scheme, Options, properties);
-			await Events.HandleForbiddenAsync(handleForbiddenContext).ConfigureAwait(false);
-			if (handleForbiddenContext.IsHandled)
+			ApiKeyHandleForbiddenContext handleForbiddenContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyHandleForbiddenContext(this.Context, this.Scheme, this.Options, properties);
+			await this.Events.HandleForbiddenAsync(handleForbiddenContext).ConfigureAwait(false);
+			if(handleForbiddenContext.IsHandled)
 			{
 				return;
 			}
@@ -113,42 +122,45 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		}
 
 		/// <summary>
-		/// Handles the un-authenticated requests. 
-		/// Returns 401 status code in response.
-		/// If <see cref="ApiKeyOptions.SuppressWWWAuthenticateHeader"/> is not set then,
-		/// adds 'WWW-Authenticate' response header with KeyName as authentication scheme and 'Realm' 
-		/// to let the client know which authentication scheme is being used by the system.
+		///     Handles the un-authenticated requests.
+		///     Returns 401 status code in response.
+		///     If <see cref="ApiKeyOptions.SuppressWWWAuthenticateHeader" /> is not set then,
+		///     adds 'WWW-Authenticate' response header with KeyName as authentication scheme and 'Realm'
+		///     to let the client know which authentication scheme is being used by the system.
 		/// </summary>
-		/// <param name="properties"><see cref="AuthenticationProperties"/></param>
+		/// <param name="properties">
+		///     <see cref="AuthenticationProperties" />
+		/// </param>
 		/// <returns>A Task.</returns>
 		protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
 		{
 			// Raise handle challenge event.
-			var handleChallengeContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyHandleChallengeContext(Context, Scheme, Options, properties);
-			await Events.HandleChallengeAsync(handleChallengeContext).ConfigureAwait(false);
-			if (handleChallengeContext.IsHandled)
+			ApiKeyHandleChallengeContext handleChallengeContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyHandleChallengeContext(this.Context, this.Scheme, this.Options, properties);
+			await this.Events.HandleChallengeAsync(handleChallengeContext).ConfigureAwait(false);
+			if(handleChallengeContext.IsHandled)
 			{
 				return;
 			}
 
-			if (!Options.SuppressWWWAuthenticateHeader)
+			if(!this.Options.SuppressWWWAuthenticateHeader)
 			{
-				Response.Headers[HeaderNames.WWWAuthenticate] = Challenge;
+				this.Response.Headers[HeaderNames.WWWAuthenticate] = this.Challenge;
 			}
+
 			await base.HandleChallengeAsync(properties);
 		}
 
 		private async Task<AuthenticateResult> RaiseAndHandleEventValidateKeyAsync(string apiKey)
 		{
-			var validateApiContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyValidateKeyContext(Context, Scheme, Options, apiKey);
-			await Events.ValidateKeyAsync(validateApiContext).ConfigureAwait(false);
+			ApiKeyValidateKeyContext validateApiContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyValidateKeyContext(this.Context, this.Scheme, this.Options, apiKey);
+			await this.Events.ValidateKeyAsync(validateApiContext).ConfigureAwait(false);
 
-			if (validateApiContext.Result != null)
+			if(validateApiContext.Result != null)
 			{
 				return validateApiContext.Result;
 			}
 
-			if (validateApiContext.Principal?.Identity != null && validateApiContext.Principal.Identity.IsAuthenticated)
+			if(validateApiContext.Principal?.Identity != null && validateApiContext.Principal.Identity.IsAuthenticated)
 			{
 				// If claims principal is set and is authenticated then build a ticket by calling and return success.
 				validateApiContext.Success();
@@ -161,25 +173,25 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		private async Task<AuthenticateResult> RaiseAndHandleAuthenticationSucceededAsync(IApiKey apiKey)
 		{
 			// ..create claims principal.
-			var principal = ApiKeyUtils.BuildClaimsPrincipal(apiKey.OwnerName, Scheme.Name, ClaimsIssuer, apiKey.Claims);
+			ClaimsPrincipal principal = ApiKeyUtils.BuildClaimsPrincipal(apiKey.OwnerName, this.Scheme.Name, this.ClaimsIssuer, apiKey.Claims);
 
 			// Raise authentication succeeded event.
-			var authenticationSucceededContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyAuthenticationSucceededContext(Context, Scheme, Options, principal);
-			await Events.AuthenticationSucceededAsync(authenticationSucceededContext).ConfigureAwait(false);
+			ApiKeyAuthenticationSucceededContext authenticationSucceededContext = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyAuthenticationSucceededContext(this.Context, this.Scheme, this.Options, principal);
+			await this.Events.AuthenticationSucceededAsync(authenticationSucceededContext).ConfigureAwait(false);
 
-			if (authenticationSucceededContext.Result != null)
+			if(authenticationSucceededContext.Result != null)
 			{
 				return authenticationSucceededContext.Result;
 			}
 
-			if (authenticationSucceededContext.Principal?.Identity != null && authenticationSucceededContext.Principal.Identity.IsAuthenticated)
+			if(authenticationSucceededContext.Principal?.Identity != null && authenticationSucceededContext.Principal.Identity.IsAuthenticated)
 			{
 				// If claims principal is set and is authenticated then build a ticket by calling and return success.
 				authenticationSucceededContext.Success();
 				return authenticationSucceededContext.Result;
 			}
 
-			Logger.LogError("No authenticated principal set.");
+			this.Logger.LogError("No authenticated principal set.");
 			return AuthenticateResult.Fail("No authenticated principal set.");
 		}
 
@@ -188,19 +200,19 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 			IApiKeyAuthenticationService apiKeyAuthenticationService = null;
 
 			// Try to get an instance of the IBasicUserValidationServiceFactory.
-			var apiKeyProviderFactory = this.Context.RequestServices.GetService<IApiKeyAuthenticationServiceFactory>();
+			IApiKeyAuthenticationServiceFactory apiKeyProviderFactory = this.Context.RequestServices.GetService<IApiKeyAuthenticationServiceFactory>();
 
 			// Try to get a IApiKeyProvider instance from the factory.
-			apiKeyAuthenticationService = apiKeyProviderFactory?.CreateApiKeyAuthenticationService(Options.AuthenticationSchemeName);
+			apiKeyAuthenticationService = apiKeyProviderFactory?.CreateApiKeyAuthenticationService(this.Options.AuthenticationSchemeName);
 
-			if (apiKeyAuthenticationService == null && Options.ApiKeyProviderType != null)
+			if(apiKeyAuthenticationService == null && this.Options.ApiKeyProviderType != null)
 			{
-				apiKeyAuthenticationService = ActivatorUtilities.GetServiceOrCreateInstance(Context.RequestServices, Options.ApiKeyProviderType) as IApiKeyAuthenticationService;
+				apiKeyAuthenticationService = ActivatorUtilities.GetServiceOrCreateInstance(this.Context.RequestServices, this.Options.ApiKeyProviderType) as IApiKeyAuthenticationService;
 			}
 
-			if (apiKeyAuthenticationService == null)
+			if(apiKeyAuthenticationService == null)
 			{
-				throw new InvalidOperationException($"Either {nameof(Options.Events.OnValidateKey)} delegate on configure options {nameof(Options.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.");
+				throw new InvalidOperationException($"Either {nameof(this.Options.Events.OnValidateKey)} delegate on configure options {nameof(this.Options.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.");
 			}
 
 			try
@@ -209,7 +221,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 			}
 			finally
 			{
-				if (apiKeyAuthenticationService is IDisposable disposableApiKeyProvider)
+				if(apiKeyAuthenticationService is IDisposable disposableApiKeyProvider)
 				{
 					disposableApiKeyProvider.Dispose();
 				}
@@ -217,24 +229,35 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		}
 
 		private string GetWwwAuthenticateSchemeName()
-        {
-			return Options.ForLegacyUseKeyNameAsSchemeNameOnWWWAuthenticateHeader
-				? Options.KeyName
-				: Scheme.Name;
-        }
+		{
+			return this.Options.ForLegacyUseKeyNameAsSchemeNameOnWWWAuthenticateHeader
+				? this.Options.KeyName
+				: this.Scheme.Name;
+		}
 
 		private string GetWwwAuthenticateInParameter()
-        {
-			var handlerType = this.GetType();
+		{
+			Type handlerType = this.GetType();
 
-			if (handlerType == typeof(ApiKeyInAuthorizationHeaderHandler))
+			if(handlerType == typeof(ApiKeyInAuthorizationHeaderHandler))
+			{
 				return "authorization_header";
-			if (handlerType == typeof(ApiKeyInHeaderHandler))
+			}
+
+			if(handlerType == typeof(ApiKeyInHeaderHandler))
+			{
 				return "header";
-			if (handlerType == typeof(ApiKeyInQueryParamsHandler))
+			}
+
+			if(handlerType == typeof(ApiKeyInQueryParamsHandler))
+			{
 				return "query_params";
-			if (handlerType == typeof(ApiKeyInHeaderOrQueryParamsHandler))
+			}
+
+			if(handlerType == typeof(ApiKeyInHeaderOrQueryParamsHandler))
+			{
 				return "header_or_query_params";
+			}
 
 			throw new NotImplementedException($"No parameter name defined for {handlerType.FullName}.");
 		}
@@ -244,8 +267,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 #if (NET461 || NETSTANDARD2_0)
 			return false;
 #else
-			return Options.IgnoreAuthenticationIfAllowAnonymous
-				&& Context.GetEndpoint()?.Metadata?.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() != null;
+			return this.Options.IgnoreAuthenticationIfAllowAnonymous
+				&& this.Context.GetEndpoint()?.Metadata?.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() != null;
 #endif
 		}
 	}

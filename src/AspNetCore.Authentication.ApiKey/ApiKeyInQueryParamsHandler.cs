@@ -3,14 +3,15 @@
 
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-    using System.Linq;
-    using System.Text.Encodings.Web;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
+	using System.Linq;
+	using System.Text.Encodings.Web;
+	using System.Threading.Tasks;
+	using Microsoft.AspNetCore.Authentication;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+	using Microsoft.Extensions.Primitives;
 
-    public class ApiKeyInQueryParamsHandler : ApiKeyHandlerBase
+	public class ApiKeyInQueryParamsHandler : ApiKeyHandlerBase
 	{
 		public ApiKeyInQueryParamsHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
 			: base(options, logger, encoder, clock)
@@ -19,7 +20,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 
 		protected override Task<string> ParseApiKeyAsync()
 		{
-			if (Request.Query.TryGetValue(Options.KeyName, out var value))
+			if(this.Request.Query.TryGetValue(this.Options.KeyName, out StringValues value))
 			{
 				return Task.FromResult(value.FirstOrDefault());
 			}
