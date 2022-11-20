@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using AspNetCore.Authentication.ApiKey.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace AspNetCore.Authentication.ApiKey.Tests
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 {
+    using System;
+    using System.Threading.Tasks;
+    using Xunit;
+
     public class ApiKeyPostConfigureOptionsTests
     {
 		static string KeyName = "X-API-KEY";
@@ -122,20 +120,20 @@ namespace AspNetCore.Authentication.ApiKey.Tests
 
 		private async Task RunAuthInitAsync(Action<ApiKeyOptions> configureOptions)
 		{
-			var server = TestServerBuilder.BuildInHeaderOrQueryParamsServer(configureOptions);
-			await server.CreateClient().GetAsync(TestServerBuilder.BaseUrl);
+			var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServer(configureOptions);
+			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
 		}
 
 		private async Task RunAuthInitWithProviderAsync(Action<ApiKeyOptions> configureOptions)
 		{
-			var server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(configureOptions);
-			await server.CreateClient().GetAsync(TestServerBuilder.BaseUrl);
+			var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(configureOptions);
+			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
 		}
 
 		private async Task RunAuthInitWithServiceFactoryAsync(Action<ApiKeyOptions> configureOptions)
 		{
-			var server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProviderFactory(configureOptions);
-			await server.CreateClient().GetAsync(TestServerBuilder.BaseUrl);
+			var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProviderFactory(configureOptions);
+			await server.CreateClient().GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
 		}
 	}
 }

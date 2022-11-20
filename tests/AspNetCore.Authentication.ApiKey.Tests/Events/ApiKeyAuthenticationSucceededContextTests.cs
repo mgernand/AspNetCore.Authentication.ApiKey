@@ -1,19 +1,18 @@
 // Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using AspNetCore.Authentication.ApiKey.Tests.Infrastructure;
-using Microsoft.AspNetCore.TestHost;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace AspNetCore.Authentication.ApiKey.Tests.Events
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Events
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Http;
+    using System.Security.Claims;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.TestHost;
+    using Xunit;
+
     public class ApiKeyAuthenticationSucceededContextTests : IDisposable
     {
         private readonly List<TestServer> _serversToDispose = new List<TestServer>();
@@ -106,7 +105,7 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
             );
 
             var principal = await RunSuccessTests(client);
-            Assert.Contains(new ClaimDto(claim), principal.Claims);
+            Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(claim), principal.Claims);
         }
 
         [Fact]
@@ -130,18 +129,18 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
             );
 
             var principal = await RunSuccessTests(client);
-            Assert.Contains(new ClaimDto(claims[0]), principal.Claims);
-            Assert.Contains(new ClaimDto(claims[1]), principal.Claims);
+            Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(claims[0]), principal.Claims);
+            Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(claims[1]), principal.Claims);
         }
 
 
 
-        private HttpClient BuildClient(Func<ApiKeyAuthenticationSucceededContext, Task> onAuthenticationSucceeded)
+        private HttpClient BuildClient(Func<MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyAuthenticationSucceededContext, Task> onAuthenticationSucceeded)
         {
-            var server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+            var server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
             {
-                options.KeyName = FakeApiKeys.KeyName;
-                options.Realm = TestServerBuilder.Realm;
+                options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+                options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
                 options.Events.OnAuthenticationSucceeded = onAuthenticationSucceeded;
             });
 
@@ -151,24 +150,24 @@ namespace AspNetCore.Authentication.ApiKey.Tests.Events
 
         private async Task RunUnauthorizedTests(HttpClient client)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl);
-            request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
+            using var request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl);
+            request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
             using var response_unauthorized = await client.SendAsync(request);
             Assert.False(response_unauthorized.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.Unauthorized, response_unauthorized.StatusCode);
         }
 
-        private async Task<ClaimsPrincipalDto> RunSuccessTests(HttpClient client)
+        private async Task<MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimsPrincipalDto> RunSuccessTests(HttpClient client)
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl);
-            request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
+            using var request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl);
+            request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
             using var response_ok = await client.SendAsync(request);
             Assert.True(response_ok.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.OK, response_ok.StatusCode);
 
             var content = await response_ok.Content.ReadAsStringAsync();
             Assert.False(string.IsNullOrWhiteSpace(content));
-            return JsonSerializer.Deserialize<ClaimsPrincipalDto>(content);
+            return JsonSerializer.Deserialize<MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimsPrincipalDto>(content);
         }
     }
 }

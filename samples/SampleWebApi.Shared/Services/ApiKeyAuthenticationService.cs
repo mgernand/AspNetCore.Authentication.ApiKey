@@ -1,13 +1,12 @@
-using AspNetCore.Authentication.ApiKey;
 using Microsoft.Extensions.Logging;
 using SampleWebApi.Repositories;
 using System.Threading.Tasks;
 
 namespace SampleWebApi.Services
 {
-	internal class ApiKeyAuthenticationService : IApiKeyAuthenticationService
+	internal class ApiKeyAuthenticationService : MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKeyAuthenticationService
 	{
-		private readonly ILogger<IApiKeyAuthenticationService> _logger;
+		private readonly ILogger<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKeyAuthenticationService> _logger;
 		private readonly IApiKeyRepository _apiKeyRepository;
 
 		public ApiKeyAuthenticationService(ILogger<ApiKeyAuthenticationService> logger, IApiKeyRepository apiKeyRepository)
@@ -16,7 +15,7 @@ namespace SampleWebApi.Services
 			_apiKeyRepository = apiKeyRepository;
 		}
 
-		public async Task<IApiKey> AuthenticateAsync(string key)
+		public async Task<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey> AuthenticateAsync(string key)
 		{
 			try
 			{

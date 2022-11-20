@@ -1,10 +1,9 @@
-﻿using AspNetCore.Authentication.ApiKey;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace SampleWebApi.Models
 {
-	class ApiKey : IApiKey
+	class ApiKey : MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey
 	{
 		public ApiKey(string key, string owner, List<Claim> claims = null)
 		{

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Mihir Dilip. All rights reserved.
 // Licensed under the MIT License. See LICENSE file in the project root for license information.
 
-using System.Collections.Generic;
-using System.Security.Claims;
-
-namespace AspNetCore.Authentication.ApiKey
+namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
-	/// <summary>
+    using System.Collections.Generic;
+    using System.Security.Claims;
+
+    /// <summary>
 	/// API Key Details
 	/// </summary>
 	public interface IApiKey

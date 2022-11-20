@@ -1,5 +1,4 @@
-﻿using AspNetCore.Authentication.ApiKey;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace SampleWebApi.Repositories
 {
@@ -8,6 +7,6 @@ namespace SampleWebApi.Repositories
     /// </summary>
     public interface IApiKeyRepository
     {
-        Task<IApiKey> GetApiKeyAsync(string key);
+        Task<MadEyeMatt.AspNetCore.Authentication.ApiKey.IApiKey> GetApiKeyAsync(string key);
     }
 }

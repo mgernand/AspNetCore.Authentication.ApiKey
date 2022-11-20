@@ -1,9 +1,9 @@
-using AspNetCore.Authentication.ApiKey;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using SampleWebApi.Repositories;
 using SampleWebApi.Services;
+using ApiKeyExtensions = MadEyeMatt.AspNetCore.Authentication.ApiKey.ApiKeyExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,15 +13,7 @@ builder.Services.AddTransient<IApiKeyRepository, InMemoryApiKeyRepository>();
 // Add the ApiKey scheme authentication here..
 // It requires Realm to be set in the options if SuppressWWWAuthenticateHeader is not set.
 // If an implementation of IApiKeyProvider interface is registered in the dependency register as well as OnValidateKey delegete on options.Events is also set then this delegate will be used instead of an implementation of IApiKeyProvider.
-builder.Services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
-
-    // The below AddApiKeyInHeaderOrQueryParams without type parameter will require OnValidateKey delegete on options.Events to be set unless an implementation of IApiKeyProvider interface is registered in the dependency register.
-    // Please note if OnValidateKey delegete on options.Events is also set then this delegate will be used instead of ApiKeyProvider.*
-    //.AddApiKeyInHeaderOrQueryParams(options =>
-
-    // The below AddApiKeyInHeaderOrQueryParams with type parameter will add the ApiKeyProvider to the dependency register. 
-    // Please note if OnValidateKey delegete on options.Events is also set then this delegate will be used instead of ApiKeyProvider.
-    .AddApiKeyInHeaderOrQueryParams<ApiKeyAuthenticationService>(options =>
+ApiKeyExtensions.AddApiKeyInHeaderOrQueryParams<ApiKeyAuthenticationService>(builder.Services.AddAuthentication(MadEyeMatt.AspNetCore.Authentication.ApiKey.ApiKeyDefaults.AuthenticationScheme), options =>
     {
         options.Realm = "Sample Web API";
         options.KeyName = "X-API-KEY";
@@ -37,7 +29,7 @@ builder.Services.AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
 
         //// Optional events to override the ApiKey original logic with custom logic.
         //// Only use this if you know what you are doing at your own risk. Any of the events can be assigned. 
-        options.Events = new ApiKeyEvents
+        options.Events = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents
         {
 
             //// A delegate assigned to this property will be invoked just before validating the api key. 
