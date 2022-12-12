@@ -34,7 +34,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 
 		/// <summary>
 		///     Calling this method will handle construction of authentication principal (<see cref="ClaimsPrincipal" />)
-		///     which will be assiged to the <see cref="ResultContext{TOptions}.Principal" /> property
+		///     which will be assigned to the <see cref="ResultContext{TOptions}.Principal" /> property
 		///     and <see cref="ResultContext{TOptions}.Success" /> method will also be called.
 		/// </summary>
 		/// <param name="claims">Claims to be added to the identity.</param>
@@ -45,7 +45,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 
 		/// <summary>
 		///     Calling this method will handle construction of authentication principal (<see cref="ClaimsPrincipal" />)
-		///     which will be assiged to the <see cref="ResultContext{TOptions}.Principal" /> property
+		///     which will be assigned to the <see cref="ResultContext{TOptions}.Principal" /> property
 		///     and <see cref="ResultContext{TOptions}.Success" /> method will also be called.
 		/// </summary>
 		/// <param name="ownerName">

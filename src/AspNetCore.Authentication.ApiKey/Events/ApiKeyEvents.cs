@@ -17,11 +17,11 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 		/// <remarks>
 		///     You must provide a delegate for this property for authentication to occur.
 		///     In your delegate you should either call context.ValidationSucceeded() which will handle construction of
-		///     authentication principal which will be assiged the context.Principal property and call context.Success(),
+		///     authentication principal which will be assigned the context.Principal property and call context.Success(),
 		///     or construct an authentication principal &amp; attach it to the context.Principal property and finally call
 		///     context.Success() method.
 		///     If only context.Principal property set without calling context.Success() method then, Success() method is
-		///     automaticalled called.
+		///     automatically called.
 		/// </remarks>
 		public Func<ApiKeyValidateKeyContext, Task> OnValidateKey { get; set; }
 
@@ -69,7 +69,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns>A Task.</returns>
-		public virtual Task ValidateKeyAsync(ApiKeyValidateKeyContext context)
+		public Task ValidateKeyAsync(ApiKeyValidateKeyContext context)
 		{
 			return this.OnValidateKey == null ? Task.CompletedTask : this.OnValidateKey(context);
 		}
@@ -79,7 +79,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns>A Task.</returns>
-		public virtual Task AuthenticationSucceededAsync(ApiKeyAuthenticationSucceededContext context)
+		public Task AuthenticationSucceededAsync(ApiKeyAuthenticationSucceededContext context)
 		{
 			return this.OnAuthenticationSucceeded == null ? Task.CompletedTask : this.OnAuthenticationSucceeded(context);
 		}
@@ -89,7 +89,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 		/// </summary>
 		/// <param name="context"></param>
 		/// <returns>A Task.</returns>
-		public virtual Task AuthenticationFailedAsync(ApiKeyAuthenticationFailedContext context)
+		public Task AuthenticationFailedAsync(ApiKeyAuthenticationFailedContext context)
 		{
 			return this.OnAuthenticationFailed == null ? Task.CompletedTask : this.OnAuthenticationFailed(context);
 		}
@@ -105,7 +105,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 		/// </remarks>
 		/// <param name="context"></param>
 		/// <returns>A Task.</returns>
-		public virtual Task HandleChallengeAsync(ApiKeyHandleChallengeContext context)
+		public Task HandleChallengeAsync(ApiKeyHandleChallengeContext context)
 		{
 			return this.OnHandleChallenge == null ? Task.CompletedTask : this.OnHandleChallenge(context);
 		}
@@ -119,7 +119,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Events
 		/// </remarks>
 		/// <param name="context"></param>
 		/// <returns>A Task.</returns>
-		public virtual Task HandleForbiddenAsync(ApiKeyHandleForbiddenContext context)
+		public Task HandleForbiddenAsync(ApiKeyHandleForbiddenContext context)
 		{
 			return this.OnHandleForbidden == null ? Task.CompletedTask : this.OnHandleForbidden(context);
 		}

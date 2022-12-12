@@ -21,6 +21,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		{
 		}
 
+		/// <inheritdoc />
 		protected override Task<string> ParseApiKeyAsync()
 		{
 			// Try query parameter

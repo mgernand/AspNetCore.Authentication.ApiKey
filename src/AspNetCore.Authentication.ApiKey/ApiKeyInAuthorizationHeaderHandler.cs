@@ -19,6 +19,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		{
 		}
 
+		/// <inheritdoc />
 		protected override Task<string> ParseApiKeyAsync()
 		{
 			if(this.Request.Headers.ContainsKey(HeaderNames.Authorization)

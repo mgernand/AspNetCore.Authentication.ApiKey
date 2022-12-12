@@ -11,7 +11,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 	///     This post configure options checks whether the required option properties are set or not on
 	///     <see cref="ApiKeyOptions" />.
 	/// </summary>
-	internal class ApiKeyPostConfigureOptions : IPostConfigureOptions<ApiKeyOptions>
+	internal sealed class ApiKeyPostConfigureOptions : IPostConfigureOptions<ApiKeyOptions>
 	{
 		private readonly IServiceProvider serviceProvider;
 

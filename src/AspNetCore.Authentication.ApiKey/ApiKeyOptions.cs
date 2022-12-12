@@ -4,6 +4,7 @@
 namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 {
 	using System;
+	using MadEyeMatt.AspNetCore.Authentication.ApiKey.Events;
 	using Microsoft.AspNetCore.Authentication;
 
 	/// <summary>
@@ -12,9 +13,12 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 	/// </summary>
 	public class ApiKeyOptions : AuthenticationSchemeOptions
 	{
+		/// <summary>
+		///		Initializes a new instance of the <see cref="ApiKeyOptions"/> type.
+		/// </summary>
 		public ApiKeyOptions()
 		{
-			this.Events = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents();
+			this.Events = new ApiKeyEvents();
 		}
 
 		/// <summary>
@@ -42,12 +46,12 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		/// <summary>
 		///     The object provided by the application to process events raised by the api key authentication middleware.
 		///     The application may implement the interface fully, or it may create an instance of
-		///     <see cref="ApiKey.Events.ApiKeyEvents" />
+		///     <see cref="ApiKeyEvents" />
 		///     and assign delegates only to the events it wants to process.
 		/// </summary>
-		public new MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents Events
+		public new ApiKeyEvents Events
 		{
-			get => (MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents)base.Events;
+			get => (ApiKeyEvents)base.Events;
 			set => base.Events = value;
 		}
 
@@ -70,14 +74,12 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		/// </summary>
 		public bool ForLegacyUseKeyNameAsSchemeNameOnWWWAuthenticateHeader { get; set; }
 
-#if !(NET461 || NETSTANDARD2_0)
 		/// <summary>
 		///     Default value is false.
 		///     If set to true, it checks if AllowAnonymous filter on controller action or metadata on the endpoint which, if
 		///     found, it does not try to authenticate the request.
 		/// </summary>
 		public bool IgnoreAuthenticationIfAllowAnonymous { get; set; }
-#endif
 
 		internal Type ApiKeyProviderType { get; set; } = null;
 
