@@ -11,9 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".items", ".items", "{D79517
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{3C777BBB-7464-43FB-A046-EA465791AB0C}"
-	ProjectSection(SolutionItems) = preProject
-		samples\ApiKeySamplesClient.postman_collection.json = samples\ApiKeySamplesClient.postman_collection.json
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A15FB7AB-5B7A-4428-BEBA-32DEE3C88C39}"
 EndProject
