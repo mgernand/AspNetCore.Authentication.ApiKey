@@ -294,7 +294,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		}
 
 		[Fact]
-		public async Task HandleChallange()
+		public async Task HandleChallenge()
 		{
 			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
 			using HttpClient client = server.CreateClient();
@@ -306,7 +306,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		}
 
 		[Fact]
-		public async Task HandleChallange_using_OnHandleChallenge()
+		public async Task HandleChallenge_using_OnHandleChallenge()
 		{
 			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
@@ -329,7 +329,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		}
 
 		[Fact]
-		public async Task HandleChallange_using_OnHandleChallenge_and_SuppressWWWAuthenticateHeader()
+		public async Task HandleChallenge_using_OnHandleChallenge_and_SuppressWWWAuthenticateHeader()
 		{
 			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
@@ -353,7 +353,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		}
 
 		[Fact]
-		public async Task HandleChallange_using_SuppressWWWAuthenticateHeader()
+		public async Task HandleChallenge_using_SuppressWWWAuthenticateHeader()
 		{
 			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{

@@ -26,9 +26,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 		/// <param name="options"></param>
 		/// <param name="logger"></param>
 		/// <param name="encoder"></param>
-		/// <param name="clock"></param>
-		protected ApiKeyHandlerBase(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-			: base(options, logger, encoder, clock)
+		protected ApiKeyHandlerBase(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder)
+			: base(options, logger, encoder)
 		{
 		}
 

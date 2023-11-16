@@ -6,15 +6,14 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 	using System.Linq;
 	using System.Text.Encodings.Web;
 	using System.Threading.Tasks;
-	using Microsoft.AspNetCore.Authentication;
 	using Microsoft.Extensions.Logging;
 	using Microsoft.Extensions.Options;
 	using Microsoft.Extensions.Primitives;
 
 	public class ApiKeyInHeaderHandler : ApiKeyHandlerBase
 	{
-		public ApiKeyInHeaderHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
-			: base(options, logger, encoder, clock)
+		public ApiKeyInHeaderHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder)
+			: base(options, logger, encoder)
 		{
 		}
 
