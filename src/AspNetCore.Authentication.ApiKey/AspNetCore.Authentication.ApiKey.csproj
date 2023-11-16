@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
@@ -14,9 +14,9 @@
 		<RootNamespace>MadEyeMatt.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<IncludeSymbols>false</IncludeSymbols>
 		<Copyright>Copyright © 2022-2023 Mihir Dilip, Matthias Gernand. All rights reserved.</Copyright>
-		<Version>7.1.0</Version>
-		<AssemblyVersion>7.1.0</AssemblyVersion>
-		<FileVersion>7.1.0</FileVersion>
+		<Version>8.0.0</Version>
+		<AssemblyVersion>8.0.0</AssemblyVersion>
+		<FileVersion>8.0.0</FileVersion>
 		<Authors>Mihir Dilip, Matthias Gernand</Authors>
 		<Description>An easy to use and light weight Microsoft style API-Key authentication implementation for ASP.NET Core.</Description>
 		<NeutralLanguage>en</NeutralLanguage>
