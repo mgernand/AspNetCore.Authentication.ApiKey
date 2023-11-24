@@ -20,6 +20,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 	/// </summary>
 	public abstract class ApiKeyHandlerBase : AuthenticationHandler<ApiKeyOptions>
 	{
+#if NET8_0_OR_GREATER
 		/// <summary>
 		///		Initializes a new instance of the <see cref="ApiKeyHandlerBase"/> type.
 		/// </summary>
@@ -30,6 +31,20 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 			: base(options, logger, encoder)
 		{
 		}
+#endif
+
+#if NET6_0 || NET7_0
+		/// <summary>
+		///		Initializes a new instance of the <see cref="ApiKeyHandlerBase"/> type.
+		/// </summary>
+		/// <param name="options"></param>
+		/// <param name="logger"></param>
+		/// <param name="encoder"></param>
+		protected ApiKeyHandlerBase(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock systemClock)
+			: base(options, logger, encoder, systemClock)
+		{
+		}
+#endif
 
 		private string Challenge => $"{this.GetWwwAuthenticateSchemeName()} realm=\"{this.Options.Realm}\", charset=\"UTF-8\", in=\"{this.GetWwwAuthenticateInParameter()}\", key_name=\"{this.Options.KeyName}\"";
 
