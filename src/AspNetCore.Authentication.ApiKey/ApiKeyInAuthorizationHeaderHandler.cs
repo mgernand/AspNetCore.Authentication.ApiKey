@@ -7,16 +7,26 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 	using System.Net.Http.Headers;
 	using System.Text.Encodings.Web;
 	using System.Threading.Tasks;
+	using Microsoft.AspNetCore.Authentication;
 	using Microsoft.Extensions.Logging;
 	using Microsoft.Extensions.Options;
 	using Microsoft.Net.Http.Headers;
 
 	public class ApiKeyInAuthorizationHeaderHandler : ApiKeyHandlerBase
 	{
+#if NET8_0_OR_GREATER
 		public ApiKeyInAuthorizationHeaderHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder)
 			: base(options, logger, encoder)
 		{
 		}
+#endif
+
+#if NET6_0 || NET7_0
+		public ApiKeyInAuthorizationHeaderHandler(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock systemClock)
+			: base(options, logger, encoder, systemClock)
+		{
+		}
+#endif
 
 		/// <inheritdoc />
 		protected override Task<string> ParseApiKeyAsync()
