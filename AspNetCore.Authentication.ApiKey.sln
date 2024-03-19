@@ -15,6 +15,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A15FB7AB-5B7A-4428-BEBA-32DEE3C88C39}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BCEF726B-D658-40C2-9099-7001BA519E71}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.Authentication.ApiKey", "src\AspNetCore.Authentication.ApiKey\AspNetCore.Authentication.ApiKey.csproj", "{09D17A19-0406-487A-810A-24107AE767F8}"
 EndProject
