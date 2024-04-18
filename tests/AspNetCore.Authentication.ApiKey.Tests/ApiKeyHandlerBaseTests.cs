@@ -14,6 +14,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 	using System.Threading.Tasks;
 	using MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure;
 	using Microsoft.AspNetCore.Authorization;
+	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.TestHost;
 	using Microsoft.Extensions.DependencyInjection;
 	using Xunit;
@@ -23,16 +24,16 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		private const string HeaderFromEventsKey = nameof(HeaderFromEventsKey);
 		private const string HeaderFromEventsValue = nameof(HeaderFromEventsValue);
 
-		private async Task<MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimsPrincipalDto> DeserializeClaimsPrincipalAsync(HttpResponseMessage response)
+		private async Task<ClaimsPrincipalDto> DeserializeClaimsPrincipalAsync(HttpResponseMessage response)
 		{
-			return JsonSerializer.Deserialize<MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimsPrincipalDto>(await response.Content.ReadAsStringAsync());
+			return JsonSerializer.Deserialize<ClaimsPrincipalDto>(await response.Content.ReadAsStringAsync());
 		}
 
 		private class FakeApiKeyAuthenticationServiceLocal1 : IApiKeyAuthenticationService
 		{
 			public Task<IApiKey> AuthenticateAsync(string key)
 			{
-				return Task.FromResult((IApiKey)new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKey(key, "Test", new List<Claim> { new Claim("Provider", "1") }));
+				return Task.FromResult((IApiKey)new FakeApiKey(key, "Test", new List<Claim> { new Claim("Provider", "1") }));
 			}
 		}
 
@@ -40,17 +41,17 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		{
 			public Task<IApiKey> AuthenticateAsync(string key)
 			{
-				return Task.FromResult((IApiKey)new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKey(key, "Test", new List<Claim> { new Claim("Provider", "2") }));
+				return Task.FromResult((IApiKey)new FakeApiKey(key, "Test", new List<Claim> { new Claim("Provider", "2") }));
 			}
 		}
 
 		[Fact]
 		public async Task HandleAuthenticate_ForLegacyIgnoreExtraValidatedApiKeyCheck()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKeyForLegacyIgnoreExtraValidatedApiKeyCheck);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.BaseUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKeyForLegacyIgnoreExtraValidatedApiKeyCheck);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.False(response.IsSuccessStatusCode);
@@ -62,9 +63,9 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_IgnoreAuthenticationIfAllowAnonymous()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
 			using HttpClient client = server.CreateClient();
-			using HttpResponseMessage response = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.AnonymousUrl);
+			using HttpResponseMessage response = await client.GetAsync(TestServerBuilder.AnonymousUrl);
 			ClaimsPrincipalDto principal = await this.DeserializeClaimsPrincipalAsync(response);
 
 			Assert.True(response.IsSuccessStatusCode);
@@ -77,10 +78,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_OnAuthenticationSucceeded_result_and_principal_null()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnAuthenticationSucceeded = context =>
 				{
 					context.RejectPrincipal();
@@ -92,8 +93,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.BaseUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.False(response.IsSuccessStatusCode);
@@ -103,10 +104,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_OnAuthenticationSucceeded_result_not_null()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnAuthenticationSucceeded = context =>
 				{
 					context.Fail("test");
@@ -118,8 +119,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.BaseUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.False(response.IsSuccessStatusCode);
@@ -129,10 +130,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_OnAuthenticationSucceeded_result_null()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnAuthenticationSucceeded = context =>
 				{
 					Assert.Null(context.Result);
@@ -141,8 +142,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.BaseUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.True(response.IsSuccessStatusCode);
@@ -152,10 +153,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_OnValidateKey_result_not_null()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnValidateKey = context =>
 				{
 					context.ValidationSucceeded();
@@ -166,23 +167,23 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 			ClaimsPrincipalDto principal = await this.DeserializeClaimsPrincipalAsync(response);
 
 			Assert.True(response.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			Assert.DoesNotContain(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeRoleClaim), principal.Claims); // provider not called
+			Assert.DoesNotContain(new ClaimDto(FakeApiKeys.FakeRoleClaim), principal.Claims); // provider not called
 		}
 
 		[Fact]
 		public async Task HandleAuthenticate_OnValidateKey_result_null()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnValidateKey = context =>
 				{
 					Assert.Null(context.Result);
@@ -191,14 +192,14 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 			ClaimsPrincipalDto principal = await this.DeserializeClaimsPrincipalAsync(response);
 
 			Assert.True(response.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-			Assert.Contains(new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeRoleClaim), principal.Claims); // coming from provider, so provider called
+			Assert.Contains(new ClaimDto(FakeApiKeys.FakeRoleClaim), principal.Claims); // coming from provider, so provider called
 		}
 
 		[Fact]
@@ -206,10 +207,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		{
 			string expectedExceptionMessage = $"Either {nameof(MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.";
 
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnValidateKey = context =>
 				{
 					Assert.Null(context.Result);
@@ -232,8 +233,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.BaseUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.False(response.IsSuccessStatusCode);
@@ -245,10 +246,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		{
 			string expectedExceptionMessage = $"Either {nameof(MadEyeMatt.AspNetCore.Authentication.ApiKey.Events.ApiKeyEvents.OnValidateKey)} delegate on configure options {nameof(ApiKeyOptions.Events)} should be set or use an extension method with type parameter of type {nameof(IApiKeyAuthenticationService)} or register an implementation of type {nameof(IApiKeyAuthenticationServiceFactory)} in the service collection.";
 
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServer(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnValidateKey = context =>
 				{
 					Assert.Null(context.Result);
@@ -266,8 +267,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.BaseUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 
 			InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
 			{
@@ -283,10 +284,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleAuthenticate_ParseApiKey_empty()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, string.Empty);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.BaseUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, string.Empty);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.False(response.IsSuccessStatusCode);
@@ -296,9 +297,9 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleChallenge()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
 			using HttpClient client = server.CreateClient();
-			using HttpResponseMessage response = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+			using HttpResponseMessage response = await client.GetAsync(TestServerBuilder.BaseUrl);
 
 			Assert.False(response.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -308,18 +309,18 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleChallenge_using_OnHandleChallenge()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnHandleChallenge = context =>
 				{
-					context.HttpContext.Response.Headers.Add(HeaderFromEventsKey, HeaderFromEventsValue);
+					context.HttpContext.Response.Headers.Append(HeaderFromEventsKey, HeaderFromEventsValue);
 					return Task.CompletedTask;
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpResponseMessage response = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+			using HttpResponseMessage response = await client.GetAsync(TestServerBuilder.BaseUrl);
 
 			Assert.False(response.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -331,19 +332,19 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleChallenge_using_OnHandleChallenge_and_SuppressWWWAuthenticateHeader()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.SuppressWWWAuthenticateHeader = true;
 				options.Events.OnHandleChallenge = context =>
 				{
-					context.HttpContext.Response.Headers.Add(HeaderFromEventsKey, HeaderFromEventsValue);
+					context.HttpContext.Response.Headers.Append(HeaderFromEventsKey, HeaderFromEventsValue);
 					return Task.CompletedTask;
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpResponseMessage response = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+			using HttpResponseMessage response = await client.GetAsync(TestServerBuilder.BaseUrl);
 
 			Assert.False(response.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -355,14 +356,14 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleChallenge_using_SuppressWWWAuthenticateHeader()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.SuppressWWWAuthenticateHeader = true;
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpResponseMessage response = await client.GetAsync(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BaseUrl);
+			using HttpResponseMessage response = await client.GetAsync(TestServerBuilder.BaseUrl);
 
 			Assert.False(response.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -372,10 +373,10 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleForbidden()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider();
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ForbiddenUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ForbiddenUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.False(response.IsSuccessStatusCode);
@@ -386,19 +387,19 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 		[Fact]
 		public async Task HandleForbidden_using_OnHandleForbidden()
 		{
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
+			using TestServer server = TestServerBuilder.BuildInHeaderOrQueryParamsServerWithProvider(options =>
 			{
-				options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
-				options.KeyName = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName;
+				options.Realm = TestServerBuilder.Realm;
+				options.KeyName = FakeApiKeys.KeyName;
 				options.Events.OnHandleForbidden = context =>
 				{
-					context.HttpContext.Response.Headers.Add(HeaderFromEventsKey, HeaderFromEventsValue);
+					context.HttpContext.Response.Headers.Append(HeaderFromEventsKey, HeaderFromEventsValue);
 					return Task.CompletedTask;
 				};
 			});
 			using HttpClient client = server.CreateClient();
-			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ForbiddenUrl);
-			request.Headers.Add(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.KeyName, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ForbiddenUrl);
+			request.Headers.Add(FakeApiKeys.KeyName, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			Assert.False(response.IsSuccessStatusCode);
@@ -414,38 +415,38 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 			string keyName2 = "Key2";
 			string keyName3 = "Key3";
 			string keyName4 = "Key4";
-			ClaimDto claimProvider1 = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto { Type = "Provider", Value = "1" };
-			ClaimDto claimProvider2 = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto { Type = "Provider", Value = "2" };
-			ClaimDto claimRole = new MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.ClaimDto(MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeRoleClaim);
+			ClaimDto claimProvider1 = new ClaimDto { Type = "Provider", Value = "1" };
+			ClaimDto claimProvider2 = new ClaimDto { Type = "Provider", Value = "2" };
+			ClaimDto claimRole = new ClaimDto(FakeApiKeys.FakeRoleClaim);
 			List<string> schemes = new List<string> { "InHeader", "InHeaderWithProvider", "InAuthorizationHeader", "InQueryParams" };
 
-			using TestServer server = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.BuildTestServer(services =>
+			using TestServer server = TestServerBuilder.BuildTestServer(services =>
 			{
 				services.AddAuthentication("InHeader")
 					.AddApiKeyInHeader("InHeader", options =>
 					{
-						options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
+						options.Realm = TestServerBuilder.Realm;
 						options.KeyName = keyName1;
 						options.Events.OnValidateKey = context =>
 						{
-							context.Response.Headers.Add("X-Custom", "InHeader Scheme");
+							context.Response.Headers.Append("X-Custom", "InHeader Scheme");
 							context.ValidationSucceeded();
 							return Task.CompletedTask;
 						};
 					})
 					.AddApiKeyInHeader<FakeApiKeyAuthenticationServiceLocal1>("InHeaderWithProvider", options =>
 					{
-						options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
+						options.Realm = TestServerBuilder.Realm;
 						options.KeyName = keyName2;
 					})
 					.AddApiKeyInAuthorizationHeader<FakeApiKeyAuthenticationServiceLocal2>("InAuthorizationHeader", options =>
 					{
-						options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
+						options.Realm = TestServerBuilder.Realm;
 						options.KeyName = keyName3;
 					})
-					.AddApiKeyInQueryParams<MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeyAuthenticationService>("InQueryParams", options =>
+					.AddApiKeyInQueryParams<FakeApiKeyAuthenticationService>("InQueryParams", options =>
 					{
-						options.Realm = MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.Realm;
+						options.Realm = TestServerBuilder.Realm;
 						options.KeyName = keyName4;
 					});
 
@@ -456,8 +457,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 
 			using HttpClient client = server.CreateClient();
 
-			using HttpRequestMessage request1 = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl + "?scheme=" + schemes[0]);
-			request1.Headers.Add(keyName1, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request1 = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl + "?scheme=" + schemes[0]);
+			request1.Headers.Add(keyName1, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response1 = await client.SendAsync(request1);
 			Assert.True(response1.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.OK, response1.StatusCode);
@@ -468,8 +469,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 			Assert.DoesNotContain(response1Principal.Claims, c => c.Type == claimRole.Type && c.Value == claimRole.Value);
 
 
-			using HttpRequestMessage request2 = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl + "?scheme=" + schemes[1]);
-			request2.Headers.Add(keyName2, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request2 = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl + "?scheme=" + schemes[1]);
+			request2.Headers.Add(keyName2, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response2 = await client.SendAsync(request2);
 			Assert.True(response2.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.OK, response2.StatusCode);
@@ -480,8 +481,8 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 			Assert.DoesNotContain(response2Principal.Claims, c => c.Type == claimRole.Type && c.Value == claimRole.Value);
 
 
-			using HttpRequestMessage request3 = new HttpRequestMessage(HttpMethod.Get, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl + "?scheme=" + schemes[2]);
-			request3.Headers.Authorization = new AuthenticationHeaderValue(keyName3, MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey);
+			using HttpRequestMessage request3 = new HttpRequestMessage(HttpMethod.Get, TestServerBuilder.ClaimsPrincipalUrl + "?scheme=" + schemes[2]);
+			request3.Headers.Authorization = new AuthenticationHeaderValue(keyName3, FakeApiKeys.FakeKey);
 			using HttpResponseMessage response3 = await client.SendAsync(request3);
 			Assert.True(response3.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.OK, response3.StatusCode);
@@ -492,7 +493,7 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests
 			Assert.DoesNotContain(response3Principal.Claims, c => c.Type == claimRole.Type && c.Value == claimRole.Value);
 
 
-			using HttpRequestMessage request4 = new HttpRequestMessage(HttpMethod.Get, $"{MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.TestServerBuilder.ClaimsPrincipalUrl}?scheme={schemes[3]}&{keyName4}={MadEyeMatt.AspNetCore.Authentication.ApiKey.Tests.Infrastructure.FakeApiKeys.FakeKey}");
+			using HttpRequestMessage request4 = new HttpRequestMessage(HttpMethod.Get, $"{TestServerBuilder.ClaimsPrincipalUrl}?scheme={schemes[3]}&{keyName4}={FakeApiKeys.FakeKey}");
 			using HttpResponseMessage response4 = await client.SendAsync(request4);
 			Assert.True(response4.IsSuccessStatusCode);
 			Assert.Equal(HttpStatusCode.OK, response3.StatusCode);

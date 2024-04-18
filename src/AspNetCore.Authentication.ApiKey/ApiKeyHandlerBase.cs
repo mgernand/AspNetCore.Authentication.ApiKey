@@ -34,12 +34,13 @@ namespace MadEyeMatt.AspNetCore.Authentication.ApiKey
 #endif
 
 #if NET6_0 || NET7_0
-		/// <summary>
-		///		Initializes a new instance of the <see cref="ApiKeyHandlerBase"/> type.
-		/// </summary>
-		/// <param name="options"></param>
-		/// <param name="logger"></param>
-		/// <param name="encoder"></param>
+		///  <summary>
+		/// 		Initializes a new instance of the <see cref="ApiKeyHandlerBase"/> type.
+		///  </summary>
+		///  <param name="options"></param>
+		///  <param name="logger"></param>
+		///  <param name="encoder"></param>
+		///  <param name="systemClock"></param>
 		protected ApiKeyHandlerBase(IOptionsMonitor<ApiKeyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock systemClock)
 			: base(options, logger, encoder, systemClock)
 		{
